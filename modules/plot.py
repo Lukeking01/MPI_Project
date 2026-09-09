@@ -27,12 +27,9 @@ def plot_temperature(room_states):
             For now doing the latter since it's easier.
     """
 
-    init_room_state = room_states[0]
-    final_room_state = room_states[-1]
-
     # Configure subplots
-    fig, axs = plt.subplots(1, 3)
-    fig.suptitle("Multiple Images")
+    fig, axes = plt.subplots(1, 3)
+    fig.suptitle("Heat Flow Visualized")
     # im = ax.imshow(create_dummy_array(), cmap="BlRe")
 
     # Create a colorizer with a predefined norm to be shared across all images
@@ -42,11 +39,25 @@ def plot_temperature(room_states):
 
     # Attach heatmap to each of the three displays.
     images = []
-    for ax, data in zip(axs.flat, [init_room_state, room_states[0], final_room_state]):
+    for ax, data, title in zip(axes.flat, [room_states[0], room_states[0], room_states[-1]], ["Initial State", "Animation", "Final State"]):
+        ax.set_title(title)
+        # Remove ticks and labels
+        ax.tick_params(
+            axis='both',
+            which='both',
+            bottom=False,
+            top=False,
+            left=False,
+            right=False,
+            labelbottom = False,
+            labeltop = False,
+            labelleft = False,
+            labelright = False
+        )
         images.append(ax.imshow(data, colorizer=colorizer))
 
     # Display shared colorbar
-    fig.colorbar(images[0], ax=axs, orientation='horizontal', fraction=.1)
+    fig.colorbar(images[0], ax=axes, orientation='horizontal', fraction=0.1)
 
     plt.show()
 
