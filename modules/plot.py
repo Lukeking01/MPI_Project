@@ -17,6 +17,36 @@ def cleanup_ax(ax):
     """
     ax.tick_params(axis='both', which='both', bottom=False, left=False, labelbottom = False, labelleft = False)
 
+def setup_plot_data(room_states):
+    """
+    Collects the plot data with useful info describing what should be visualized and customizing how.
+    It is hard-coded behavior in this function that the output array will be:
+    
+    - The initial room state.
+    - An animation from the initial to final room states.
+    - The final room state.
+
+    Note: "data" will be a single room state frame, unless it's meant to be animated, in which case "data"
+    should be an array of frames to animate between.
+    """
+    return [
+        {
+            "data": room_states[0],
+            "title": "Initial State",
+            "animate": False,
+        },
+        {
+            "data": room_states,
+            "title": "Animation",
+            "animate": True,
+        },
+        {
+            "data": room_states[-1],
+            "title": "Final State",
+            "animate": False,
+        },
+    ]
+
 def plot_temperature(room_states):
     """
     Accepts an array of room state snapshots, and renders them in a series of heatmaps. 
@@ -46,13 +76,35 @@ def plot_temperature(room_states):
 
     # Attach heatmap to each of the three displays.
     images = []
-    for ax, data, title in zip(axes.flat, [room_states[0], room_states[0], room_states[-1]], ["Initial State", "Animation", "Final State"]):
+    for ax, plot_data in zip(axes.flat, setup_plot_data(room_states)):
         # Update subplot title
-        ax.set_title(title)
+        ax.set_title(plot_data["title"])
         # Clean subplot details
         cleanup_ax(ax)
-        # Draw heatmap
-        images.append(ax.imshow(data, colorizer=colorizer))
+
+        if not plot_data["animate"]:
+            # Draw heatmap
+            images.append(ax.imshow(plot_data["data"], colorizer=colorizer))
+        else:
+            # Animate heatmap frames
+            anim_img = ax.imshow(plot_data["data"][0], colorizer=colorizer)
+
+            # Updates the frame rendered in the axes image with the incoming frame from the Animation object.
+            def update(frame_data):
+                anim_img.set_array(frame_data)
+                return [anim_img] 
+
+            anim = animation.FuncAnimation(
+                fig,
+                update,
+                frames=plot_data["data"],
+                interval=700, # Delay in (ms)
+                repeat=True,
+                repeat_delay=2000,
+                # blit=False, # Set to true if more efficient rendering is desired, but note that an
+                              # init_func may be required to draw the first frame to a non-white background.
+            )
+            images.append(anim)
 
     # Display shared colorbar
     fig.colorbar(images[0], ax=axes, orientation='horizontal', fraction=0.1)
