@@ -1,4 +1,4 @@
-
+import numpy as np
 ### apartment layout
 
 def create_room1(dx):
