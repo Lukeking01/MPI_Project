@@ -4,18 +4,22 @@ import matplotlib.colorizer as mcolorizer
 import matplotlib.colors as mcolors
 import matplotlib.animation as animation
 
-def create_dummy_array(n: int):
+def create_dummy_array(m: int, n: int = None):
     """
-    Dummy function, simply creates a mock output of an n x n grid, with random temperature
+    Dummy function, simply creates a mock output of an m x n grid, with random temperature
     data in cells ranging from 20 to 80.
     """
-    return 20 + 80 * np.random.random((n, n))
+    if not n:
+        n = m
+    
+    return 20 + 80 * np.random.random((m, n))
 
 def cleanup_ax(ax):
     """
-    Cleans up the axes by removing tick marks.
+    Cleans up the axes by removing tick marks, and removing the borders.
     """
     ax.tick_params(axis='both', which='both', bottom=False, left=False, labelbottom = False, labelleft = False)
+    ax.axis('off')
 
 def setup_plot_data(room_states):
     """
@@ -107,10 +111,26 @@ def plot_temperature(room_states):
             images.append(anim)
 
     # Display shared colorbar
-    fig.colorbar(images[0], ax=axes, orientation='horizontal', fraction=0.1)
+    fig.colorbar(images[0], ax=axes, orientation='horizontal', fraction=0.05)
 
     plt.show()
 
+# --- Simple dummy example ---
 dummy_data = [create_dummy_array(n) for n in [50, 30, 20, 15, 12, 10]]
 
-plot_temperature(dummy_data)
+# --- More fluid room layout example ---
+# TODO Needs a better stacking alg I reckon...
+n = 10
+empty_space = np.full((n, n), fill_value=np.nan)
+room_1 = np.random.normal(loc=18, scale=1.5, size=(10, 10))  # Cool room (~18°C)
+room_2 = np.random.normal(loc=26, scale=1.0, size=(20, 10))  # Warm room (~22°C)
+room_3 = np.random.normal(loc=33, scale=2.0, size=(10, 10))  # Hot room (~26°C)
+floorplan = [np.hstack([
+    np.block([[empty_space], [room_1]]),
+    room_2,
+    np.block([[room_3], [empty_space]])
+])]
+
+# --- Choose dummy test plot data ---
+plot_temperature(dummy_data) # Shows animation
+# plot_temperature(floorplan) # Shows floor layout stitching
