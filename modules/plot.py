@@ -74,7 +74,7 @@ def plot_temperature(room_states):
     fig.suptitle("Heat Flow Visualized")
 
     # Create a colorizer with a predefined norm to be shared across all images
-    norm = mcolors.Normalize(vmin=0, vmax=100)
+    norm = mcolors.Normalize(vmin=0, vmax=40)
     cmap = "inferno"
     colorizer = mcolorizer.Colorizer(norm=norm, cmap=cmap)
 
