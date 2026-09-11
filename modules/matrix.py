@@ -1,9 +1,10 @@
 
 import numpy as np
-def build_internal_matrix(nx, ny):
+def build_internal_matrix(room):
     """
     Build the finite-difference matrix for the interior unknowns.
     """
+    ny, nx = room.shape
 
     A = np.zeros((nx * ny, nx * ny))
 
@@ -34,10 +35,11 @@ def build_internal_matrix(nx, ny):
     return A
 
 
-def build_rhs_dirichlet(room, nx, ny):
+def build_rhs_dirichlet(room):
     """
     Build RHS for a room with Dirichlet boundary conditions.
     """
+    ny, nx = room.shape
 
     b = np.zeros(nx * ny)
 
@@ -65,7 +67,7 @@ def build_rhs_dirichlet(room, nx, ny):
     return b
 
 
-def build_matrix_neumann_right(nx, ny):
+def build_matrix_neumann_right(room):
     """
     Build matrix for a room with a Neumann condition
     on the right boundary.
@@ -76,6 +78,7 @@ def build_matrix_neumann_right(nx, ny):
     which changes -4 to -3 for points adjacent
     to the Neumann boundary.
     """
+    ny, nx = room.shape
 
     A = build_internal_matrix(nx, ny)
 
@@ -89,7 +92,7 @@ def build_matrix_neumann_right(nx, ny):
     return A
 
 
-def build_rhs_neumann_right(room, flux, nx, ny):
+def build_rhs_neumann_right(room, flux):
     """
     Build RHS for:
 
@@ -99,6 +102,7 @@ def build_rhs_neumann_right(room, flux, nx, ny):
     flux[j] contains one flux value for each
     interior row.
     """
+    ny, nx = room.shape
 
     dx = 1 / (nx + 1)
 
@@ -127,7 +131,8 @@ def build_rhs_neumann_right(room, flux, nx, ny):
 
     return b
 
-def build_matrix_neumann_left(nx, ny):
+def build_matrix_neumann_left(room):
+    ny, nx = room.shape
     A = build_internal_matrix(nx, ny)
 
     for j in range(ny):
@@ -139,13 +144,14 @@ def build_matrix_neumann_left(nx, ny):
     return A
 
 
-def build_rhs_neumann_left(room, flux, nx, ny):
+def build_rhs_neumann_left(room, flux):
     """
     Left boundary = Neumann
     Right boundary = heater
     Top/bottom = normal walls
     """
 
+    ny, nx = room.shape
     dx = 1 / (nx + 1)
     b = np.zeros(nx * ny)
 
