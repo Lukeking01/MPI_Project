@@ -19,3 +19,15 @@ Project in solving the heat equation using MPI in the course NUMN21
 - Orsolya Bosáková
 - Scott Gibson
 - Mennaallah Ali Abdellatif Mohamed Alashery
+
+
+## TODO
+- MPI (Scotts on it)
+- Make sure code is local to rooms and MPI compatible
+- Testing
+- init file (Check in the end)
+- additional room
+      - Build room
+- check overall compatibility
+- Modularize matrix generation
+- Fuck around and find out
