@@ -5,6 +5,8 @@ def build_internal_matrix(room):
     Build the finite-difference matrix for the interior unknowns.
     """
     ny, nx = room.shape
+    ny -= 2
+    nx -= 2
 
     A = np.zeros((nx * ny, nx * ny))
 
@@ -40,7 +42,9 @@ def build_rhs_dirichlet(room):
     Build RHS for a room with Dirichlet boundary conditions.
     """
     ny, nx = room.shape
-
+    ny -= 2
+    nx -= 2
+    
     b = np.zeros(nx * ny)
 
     for j in range(ny):
@@ -79,8 +83,10 @@ def build_matrix_neumann_right(room):
     to the Neumann boundary.
     """
     ny, nx = room.shape
+    ny -= 2
+    nx -= 2
 
-    A = build_internal_matrix(nx, ny)
+    A = build_internal_matrix(room)
 
     for j in range(ny):
 
@@ -103,6 +109,8 @@ def build_rhs_neumann_right(room, flux):
     interior row.
     """
     ny, nx = room.shape
+    ny -= 2
+    nx -= 2
 
     dx = 1 / (nx + 1)
 
@@ -133,7 +141,9 @@ def build_rhs_neumann_right(room, flux):
 
 def build_matrix_neumann_left(room):
     ny, nx = room.shape
-    A = build_internal_matrix(nx, ny)
+    ny -= 2
+    nx -= 2
+    A = build_internal_matrix(room)
 
     for j in range(ny):
         p = j * nx
@@ -152,6 +162,8 @@ def build_rhs_neumann_left(room, flux):
     """
 
     ny, nx = room.shape
+    ny -= 2
+    nx -= 2
     dx = 1 / (nx + 1)
     b = np.zeros(nx * ny)
 
