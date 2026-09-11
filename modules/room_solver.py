@@ -2,8 +2,6 @@
 
 from scipy.linalg import solve
 
-def solve_dirichlet(A, b):
-    return solve(A, b)
-
-def solve_neumann(A, b):
-    return solve(A, b)
+def room_solver(A, b):
+    u = solve(A, b)
+    return u
