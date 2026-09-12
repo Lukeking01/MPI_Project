@@ -4,16 +4,6 @@ import matplotlib.colorizer as mcolorizer
 import matplotlib.colors as mcolors
 import matplotlib.animation as animation
 
-def create_dummy_array(m: int, n: int = None):
-    """
-    Dummy function, simply creates a mock output of an m x n grid, with random temperature
-    data in cells ranging from 20 to 80.
-    """
-    if not n:
-        n = m
-    
-    return 20 + 80 * np.random.random((m, n))
-
 def cleanup_ax(ax):
     """
     Cleans up the axes by removing tick marks, and removing the borders.
@@ -21,41 +11,46 @@ def cleanup_ax(ax):
     ax.tick_params(axis='both', which='both', bottom=False, left=False, labelbottom = False, labelleft = False)
     ax.axis('off')
 
-def setup_plot_data(room_states):
+def setup_plot_data(room_states, show_animation=False):
     """
     Collects the plot data with useful info describing what should be visualized and customizing how.
-    It is hard-coded behavior in this function that the output array will be:
-    
-    - The initial room state.
-    - An animation from the initial to final room states.
-    - The final room state.
+    If show_animation is set to true, the first plot will be an animation through all room states.
+    Otherwise it will just be a static heatmap showing the initial room state.
 
     Note: "data" will be a single room state frame, unless it's meant to be animated, in which case "data"
     should be an array of frames to animate between.
     """
-    return [
-        {
-            "data": room_states[0],
-            "title": "Initial State",
-            "animate": False,
-        },
-        {
+
+    plots = []
+    if show_animation:
+        # Define plot information with animation.
+        plots.append({
             "data": room_states,
             "title": "Animation",
             "animate": True,
-        },
-        {
-            "data": room_states[-1],
-            "title": "Final State",
+        })
+    else:
+        # Define plot information with static starting state.
+        plots.append({
+            "data": room_states[0],
+            "title": "Initial State",
             "animate": False,
-        },
-    ]
+        })
+    # Final room state is always the second plot.
+    plots.append({
+        "data": room_states[-1],
+        "title": "Final State",
+        "animate": False,
+    })
+    return plots
 
-def plot_temperature(room_states):
+def plot_temperature(room_states, show_animation = False):
     """
     Accepts an array of room state snapshots, and renders them in a series of heatmaps. 
-    Namely, the initial room state, an animation switching between room states, and a final
-    room state.
+
+    The first heatmap will either show the static initial frame, or an animation through
+    the frames, pausing at the end. The second heatmap will always show the final state,
+    the result after "n" iterations.
 
     # TODO: Determine how to stitch together three separate rooms into a single graph object.
     # TODO: Certain theming and timing vars should be moved to parameters with reasonable defaults.
@@ -70,8 +65,17 @@ def plot_temperature(room_states):
     """
 
     # Configure subplots
-    fig, axes = plt.subplots(1, 3)
+    fig, axes = plt.subplots(1, 2, constrained_layout=False)
     fig.suptitle("Heat Flow Visualized")
+
+    fig.subplots_adjust(
+        top=1.,     # Upper margin
+        bottom=0.2,  # Lower margin
+        left=0.05,    # Left margin
+        right=0.95,   # Right margin
+        wspace=0.1,  # Width spacing between subplots
+        hspace=1.   # Height spacing between subplots
+    )
 
     # Create a colorizer with a predefined norm to be shared across all images
     norm = mcolors.Normalize(vmin=0, vmax=40)
@@ -80,7 +84,7 @@ def plot_temperature(room_states):
 
     # Attach heatmap to each of the three displays.
     images = []
-    for ax, plot_data in zip(axes.flat, setup_plot_data(room_states)):
+    for ax, plot_data in zip(axes.flat, setup_plot_data(room_states, show_animation)):
         # Update subplot title
         ax.set_title(plot_data["title"])
         # Clean subplot details
@@ -111,9 +115,23 @@ def plot_temperature(room_states):
             images.append(anim)
 
     # Display shared colorbar
-    fig.colorbar(images[0], ax=axes, orientation='horizontal', fraction=0.05)
+    fig.colorbar(images[1], ax=axes, orientation='horizontal', fraction=0.05)
 
     plt.show()
+
+
+# TODO Remove once main.py connects to this file properly!
+# LOCAL TESTING FOR PLOTTING FUNCTIONS
+
+def create_dummy_array(m: int, n: int = None):
+    """
+    Dummy function, simply creates a mock output of an m x n grid, with random temperature
+    data in cells ranging from 20 to 80.
+    """
+    if not n:
+        n = m
+    
+    return 20 + 80 * np.random.random((m, n))
 
 # --- Simple dummy example ---
 dummy_data = [create_dummy_array(n) for n in [50, 30, 20, 15, 12, 10]]
@@ -132,5 +150,5 @@ floorplan = [np.hstack([
 ])]
 
 # --- Choose dummy test plot data ---
-plot_temperature(dummy_data) # Shows animation
-# plot_temperature(floorplan) # Shows floor layout stitching
+plot_temperature(dummy_data, True) # Shows animation
+# plot_temperature(floorplan, True) # Shows floor layout stitching
