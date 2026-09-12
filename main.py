@@ -2,7 +2,10 @@
 ### Placeholder import
 # TODO
 # setup init file for these functions
-from modules import create_room1, create_room2, create_room3, send_npdata, rcv_npdata, get_rank, dirichlet_neumann, plot_temperature
+from modules.geometry import create_room1, create_room2, create_room3
+from modules.MPI import send_npdata, recv_npdata, get_rank
+from modules.dn_MPI import dirichlet_neumann
+from modules.plot import plot_temperature
 import numpy as np
 
 
@@ -23,29 +26,32 @@ def main():
     solution = dirichlet_neumann(
         room,
         dx = DX,
-        rank = rank
+        rank = rank,
         iterations = N_ITERATIONS,
         omega = OMEGA
-    )
+        )
     if rank == 0:
-        size2 = np.zeros(1,1,1)
-        size3 = np.zeros(1,1,1)
         
-        rcv_npdata(size2,1)
-        rcv_npdata(size3,2)
-        
-        data2 = np.zeros(size2)
-        data3 = np.zeros(size3)
-        rcv_npdata(data2,1)
-        rcv_npdata(data3,2)
+        room2 = create_room2(DX)
+        room3 = create_room3(DX)
+        data2 = np.empty(
+            (N_ITERATIONS, *room2.shape),
+            dtype=float
+        )
+        data3 = np.empty(
+            (N_ITERATIONS, *room3.shape),
+            dtype=float
+        )
+
+        recv_npdata(data2, 1)
+        recv_npdata(data3, 2)
+
         data = zip(solution,data2,data3)
         
     if rank == 1:
-        send_npdata(solution.shape,0)
         send_npdata(solution,0)
         
     if rank == 2:
-        send_npdata(solution.shape,0)
         send_npdata(solution,0)
     
     plot_temperature(data)

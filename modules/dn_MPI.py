@@ -38,32 +38,32 @@ def dn_iteration(room, dx, rank):
         # 2. Solve Room 2 with Dirichlet conditions
         # -----------------------------------------
 
-        room2 = solve_room2(room)
+        room = solve_room2(room)
 
         # -----------------------------------------
         # 3. Calculate fluxes from Room 2
         # -----------------------------------------
 
         flux1 = -1 * (
-            room2[1:nx+1, 1] -
-            room2[1:ny+1, 0]
+            room[1:nx+1, 1] -
+            room[1:ny+1, 0]
         ) / dx
         
-        send_npdata(flux1,1)
+        send_npdata(flux1,0)
         
         flux3 = -1 * (
-            room2[nx+2:-1, -1] -
-            room2[ny+2:-1, -2]
+            room[nx+2:-1, -1] -
+            room[ny+2:-1, -2]
         ) / dx
 
         send_npdata(flux3,2)
-        return room2
+        return room
         
     if rank == 0:
         # -----------------------------------------
         # 4. Solve Room 1 with Neumann
         # -----------------------------------------
-        flux1 = np.zeros(ny)
+        flux1 = np.empty(ny)
         recv_npdata(flux1,1)
         
         room1 = solve_room1(
@@ -79,7 +79,7 @@ def dn_iteration(room, dx, rank):
         # -----------------------------------------
         # 5. Solve Room 3 with Neumann
         # -----------------------------------------
-        flux3 = np.zeros(ny)
+        flux3 = np.empty(ny)
         recv_npdata(flux3,1)
         room3 = solve_room3(
             room,
@@ -100,7 +100,6 @@ def dirichlet_neumann(room, dx, rank, iterations=10, omega=0.8):
     for k in range(iterations):
         
         room = room.copy()
-        old_room = room.copy()  
 
         new_room = dn_iteration(
             room, dx, rank
@@ -110,7 +109,7 @@ def dirichlet_neumann(room, dx, rank, iterations=10, omega=0.8):
                         room.copy()
                         )
 
-        room = relax(new_room, old_room, omega)
+        room = relax(new_room, room, omega)
 
         # Save a copy of this iteration
         states.append(
