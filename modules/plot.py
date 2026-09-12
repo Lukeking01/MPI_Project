@@ -77,7 +77,8 @@ def plot_temperature(room_states, show_animation = False):
 
     # Create a colorizer with a predefined norm to be shared across all images
     norm = mcolors.Normalize(vmin=0, vmax=40)
-    cmap = "inferno"
+    some_cmaps = ["inferno", "viridis", "magma", "plasma", "cividis", "ocean"]
+    cmap = some_cmaps[0]
     colorizer = mcolorizer.Colorizer(norm=norm, cmap=cmap)
 
     # Attach heatmap to each of the three displays.
@@ -148,5 +149,5 @@ floorplan = [np.hstack([
 ])]
 
 # --- Choose dummy test plot data ---
-plot_temperature(dummy_data, True) # Shows animation
-# plot_temperature(floorplan, True) # Shows floor layout stitching
+# plot_temperature(dummy_data, True) # Shows animation
+plot_temperature(floorplan, True) # Shows floor layout stitching
