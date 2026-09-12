@@ -23,7 +23,7 @@ Project in solving the heat equation using MPI in the course NUMN21
 
 ## TODO
 - MPI (Scotts on it)
-- Make sure code is local to rooms and MPI compatible
+- Make sure code is local to rooms and MPI compatible (✓)
 - Testing
 - init file (Check in the end)
 - additional room
