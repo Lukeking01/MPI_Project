@@ -6,9 +6,10 @@
 #relax
 #        ↓
 #repeat
+import numpy as np
 from geometry import get_interfaces
 from iteration import solve_room1, solve_room2, solve_room3
-from MPI import send_interface, receive_interface
+from MPI import send_npdata, recv_npdata
 
 def dn_iteration(room, dx, rank):
 
@@ -20,7 +21,8 @@ def dn_iteration(room, dx, rank):
     # -----------------------------------------
     # 1. Update Room 2's interface temperatures
     # -----------------------------------------
-
+    
+    ## TODO
     ## This needs to be altered using MPI
     room2, _, _ = get_interfaces(
         room1,
@@ -28,8 +30,10 @@ def dn_iteration(room, dx, rank):
         room3,
         dx
     )
+    
 
     if rank == 1:
+        room = room2
         # -----------------------------------------
         # 2. Solve Room 2 with Dirichlet conditions
         # -----------------------------------------
@@ -45,21 +49,22 @@ def dn_iteration(room, dx, rank):
             room2[1:ny+1, 0]
         ) / dx
         
-        send_interface(flux1,1)
+        send_npdata(flux1,1)
         
         flux3 = -1 * (
             room2[nx+2:-1, -1] -
             room2[ny+2:-1, -2]
         ) / dx
 
-        send_interface(flux3,2)
+        send_npdata(flux3,2)
         return room2
         
     if rank == 0:
         # -----------------------------------------
         # 4. Solve Room 1 with Neumann
         # -----------------------------------------
-        flux1 = receive_interface(1)
+        flux1 = np.zeros(ny)
+        recv_npdata(flux1,1)
         
         room1 = solve_room1(
             room,
@@ -74,7 +79,8 @@ def dn_iteration(room, dx, rank):
         # -----------------------------------------
         # 5. Solve Room 3 with Neumann
         # -----------------------------------------
-        flux3 = receive_interface(1)
+        flux3 = np.zeros(ny)
+        recv_npdata(flux3,1)
         room3 = solve_room3(
             room,
             flux3,
@@ -86,18 +92,14 @@ def dn_iteration(room, dx, rank):
 
     
 
-def dirichlet_neumann(room1, room2, room3, dx, rank, iterations=10, omega=0.8):
+def dirichlet_neumann(room, dx, rank, iterations=10, omega=0.8):
     states = []
 
     
     
     for k in range(iterations):
-        if rank == 0:
-            room = room1.copy()
-        if rank == 1:
-            room = room2.copy()
-        if rank == 2:
-            room = room3.copy()
+        
+        room = room.copy()
         old_room = room.copy()  
 
         new_room = dn_iteration(
