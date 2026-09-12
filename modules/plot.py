@@ -64,17 +64,15 @@ def plot_temperature(room_states, show_animation = False):
             For now doing the latter since it's easier.
     """
 
-    # Configure subplots
+    # Setup subplots.
     fig, axes = plt.subplots(1, 2, constrained_layout=False)
-    fig.suptitle("Heat Flow Visualized")
+    fig.suptitle("Heat Flow Visualized", weight=600, size="xx-large")
 
+    # Adjust figure to reduce excess whitespace and low vertical alignment.
     fig.subplots_adjust(
-        top=1.,     # Upper margin
-        bottom=0.2,  # Lower margin
-        left=0.05,    # Left margin
-        right=0.95,   # Right margin
-        wspace=0.1,  # Width spacing between subplots
-        hspace=1.   # Height spacing between subplots
+        top=0.85,     bottom=0.15,
+        left=0.05,  right=0.95,
+        wspace=0.1, hspace=1.
     )
 
     # Create a colorizer with a predefined norm to be shared across all images
@@ -86,7 +84,7 @@ def plot_temperature(room_states, show_animation = False):
     images = []
     for ax, plot_data in zip(axes.flat, setup_plot_data(room_states, show_animation)):
         # Update subplot title
-        ax.set_title(plot_data["title"])
+        ax.set_title(plot_data["title"], size="x-large")
         # Clean subplot details
         cleanup_ax(ax)
 
