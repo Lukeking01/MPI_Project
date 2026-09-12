@@ -7,18 +7,27 @@ import matplotlib.animation as animation
 def cleanup_ax(ax):
     """
     Cleans up the axes by removing tick marks, and removing the borders.
+
+    :param ax: Axes instance defining matplotlib subplots.
+    :returns None:
     """
     ax.tick_params(axis='both', which='both', bottom=False, left=False, labelbottom = False, labelleft = False)
     ax.axis('off')
 
-def setup_plot_data(room_states, show_animation=False):
+
+def setup_plot_data(room_states, show_animation = False):
     """
     Collects the plot data with useful info describing what should be visualized and customizing how.
     If show_animation is set to true, the first plot will be an animation through all room states.
     Otherwise it will just be a static heatmap showing the initial room state.
 
-    Note: "data" will be a single room state frame, unless it's meant to be animated, in which case "data"
-    should be an array of frames to animate between.
+    Note, "data" will be a single room state frame, unless it's meant to be animated, in which case "data"
+    should be a list of frames to animate between.
+
+    :param room_states: List of frames defining the room state.
+    :param show_animation: Set to True to configure the first plot to show a full animation. Set to False
+    to just show the static initial frame.
+    :returns list[dict]: A list of dictionaries defining details used to build a subplot.
     """
 
     plots = []
@@ -44,24 +53,35 @@ def setup_plot_data(room_states, show_animation=False):
     })
     return plots
 
-def plot_temperature(room_states, show_animation = False):
+
+def plot_temperature(
+        room_states,
+        show_animation = False,
+        norm_min = 0,
+        norm_max = 40,
+        cmap = "inferno",
+    ):
     """
-    Accepts an array of room state snapshots, and renders them in a series of heatmaps. 
+    Accepts a list of room state snapshots, and renders them in a series of heatmaps. 
 
     The first heatmap will either show the static initial frame, or an animation through
     the frames, pausing at the end. The second heatmap will always show the final state,
     the result after "n" iterations.
 
-    # TODO: Determine how to stitch together three separate rooms into a single graph object.
-    # TODO: Certain theming and timing vars should be moved to parameters with reasonable defaults.
-    # TODO: It should maybe be possible to opt in/out to the animation, since that looping forever could
-            be distracting when trying to talk through the output. Or, the speed of the animation could be
-            customizable.
-    # TODO: Determine the best way to handle normalizing the room states data. Is it better to clamp between
-            the minimum and maximum values between all iteration room states, which may have different min/max
-            values between iterations. Or should some arbitrary min/max be chosen, which runs the risk of either
-            not capturing the correct range, or keeping a large portion of the heatmap colors as unreachable.
-            For now doing the latter since it's easier.
+    :param room_states: A list of snapshots, each one a list of individual room states. Expecting that those room states are ordered \[room_1, room_2, ...\] matching the assignment diagram.
+    :param show_animation: Set to True to show an animation through all room states in the left plot. Otherwise will display the heatmap of the initial frame.
+    :param norm_min: Minimum expected value to set to the "coolest" color.
+    :param norm_max: Maximum expected value to set to the "hottest" color.
+    :param cmap: Custom cmap color set to use in the visualization. Some available ones that look nice are: "inferno", "viridis", "magma", "plasma", "cividis", "ocean".
+    
+    :returns None:
+
+    ---
+
+    TODO: Room states will be sent to this method in the form of a list of rooms. So "room_states"
+            will be a list of a list of individual room states, we need to convert that to a list
+            of glued room states before sending that data through to setup_plot_data().
+    TODO: Certain theming and timing vars should be moved to parameters with reasonable defaults.
     """
 
     # Setup subplots.
@@ -76,9 +96,7 @@ def plot_temperature(room_states, show_animation = False):
     )
 
     # Create a colorizer with a predefined norm to be shared across all images
-    norm = mcolors.Normalize(vmin=0, vmax=40)
-    some_cmaps = ["inferno", "viridis", "magma", "plasma", "cividis", "ocean"]
-    cmap = some_cmaps[0]
+    norm = mcolors.Normalize(vmin=norm_min, vmax=norm_max)
     colorizer = mcolorizer.Colorizer(norm=norm, cmap=cmap)
 
     # Attach heatmap to each of the three displays.
@@ -119,6 +137,8 @@ def plot_temperature(room_states, show_animation = False):
     plt.show()
 
 
+##########################################################################################
+
 # TODO Remove once main.py connects to this file properly!
 # LOCAL TESTING FOR PLOTTING FUNCTIONS
 
@@ -130,7 +150,7 @@ def create_dummy_array(m: int, n: int = None):
     if not n:
         n = m
     
-    return 20 + 80 * np.random.random((m, n))
+    return 15 + 20 * np.random.random((m, n))
 
 # --- Simple dummy example ---
 dummy_data = [create_dummy_array(n) for n in [50, 30, 20, 15, 12, 10]]
@@ -149,5 +169,7 @@ floorplan = [np.hstack([
 ])]
 
 # --- Choose dummy test plot data ---
-# plot_temperature(dummy_data, True) # Shows animation
-plot_temperature(floorplan, True) # Shows floor layout stitching
+plot_temperature(dummy_data, True) # Shows animation
+# plot_temperature(floorplan, True, cmap="ocean") # Shows floor layout stitching
+
+##########################################################################################
