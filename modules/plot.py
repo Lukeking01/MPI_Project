@@ -91,6 +91,7 @@ def plot_temperature(
     # Setup subplots.
     fig, axes = plt.subplots(1, 2, constrained_layout=False)
     fig.suptitle(main_title, weight=700, size="xx-large")
+    fig.set_facecolor("#bcc")
 
     # Adjust figure to reduce excess whitespace and low vertical alignment.
     fig.subplots_adjust(
