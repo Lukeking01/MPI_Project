@@ -2,7 +2,7 @@
 ### Placeholder import
 # TODO
 # setup init file for these functions
-from modules.geometry import create_room1, create_room2, create_room3
+from modules.geometry import create_room1, create_room2, create_room3, floorplan_main
 from modules.MPI import send_npdata, recv_npdata, get_rank
 from modules.dn_MPI import dirichlet_neumann
 from modules.plot import plot_temperature
@@ -47,8 +47,8 @@ def main():
         recv_npdata(data2, 1)
         recv_npdata(data3, 2)
 
-        data = [(solution[i],data2[i],data3[i]) for i in range(N_ITERATIONS+1)]
-        plot_temperature(data)
+        data = [[solution[i],data2[i],data3[i]] for i in range(N_ITERATIONS+1)]
+        plot_temperature(data, floorplan_builder=floorplan_main, show_animation=True)
         
     if rank == 1:
         send_npdata(solution,0)
