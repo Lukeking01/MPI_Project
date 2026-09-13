@@ -25,11 +25,12 @@ animation can be toggled On/Off.
 These two examples were created with the same initial conditions and
 parameters, but demonstrate the different plotting schemes available.
 
+<img src="./imgs/sample-heat-flow-animated.png" style="display: block; width: 50%;">
+
 Since the "ocean" theme includes green values at the low end, the minimum
 was dropped for better visual clarity.
 
-<img src="./imgs/sample-heat-flow-animated.png" style="display: inline-block; width: 49%;">
-<img src="./imgs/ocean-flow-animated.png" style="display: inline-block; width: 49%;">
+<img src="./imgs/ocean-flow-animated.png" style="display: block; width: 50%;">
 
 ## Project Files
 
