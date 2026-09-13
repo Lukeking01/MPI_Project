@@ -121,16 +121,28 @@ def floorplan_main(rooms):
     :returns ndarray: Assignment 1 floorplan
     """
     [room_1, room_2, room_3] = rooms
-    room_1 = room_1[:-1,:-1]
-    room_2 = room_2[:-1,:-1]
-    room_3 = room_3[:-1,:-1]
-    empty_space = np.full(room_1.shape, fill_value=np.nan)
 
-    floorplan = np.hstack([
-        np.block([[empty_space], [room_1]]),
-        room_2,
-        np.block([[room_3], [empty_space]])
-    ])
+    # Assuming that each room has equal width and room_2 is the tallest:
+    max_room_height = room_2.shape[0]
+    room_width = room_1.shape[1]
+
+    # Smallest shape for a box that can fit the full floorplan.
+    floorplan_shape = (max_room_height, 3 * room_width)
+
+    # Start with a blank canvas
+    floorplan = np.full(floorplan_shape, fill_value=np.nan, dtype=np.float64)
+
+    # Create list of (r, c) room offsets
+    room_offsets = [
+        (room_2.shape[0] - room_1.shape[0], 0),
+        (0, room_width),
+        (0, room_width * 2),
+    ]
+
+    for room, (r_off, c_off) in zip(rooms, room_offsets):
+        h, w = room.shape
+        # Insert room at the correct offset
+        floorplan[r_off:r_off + h, c_off:c_off + w] = room
 
     return floorplan
 

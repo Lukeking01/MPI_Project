@@ -7,6 +7,7 @@ sys.path.insert(0, str(PROJECT_ROOT))
 
 import numpy as np
 from modules import plot_temperature
+from modules.geometry import floorplan_main
 
 ### TEST NAMES AND ORDER
 
