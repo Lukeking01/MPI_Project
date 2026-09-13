@@ -114,3 +114,32 @@ def get_interfaces(U, dx):
         n2 = np.zeros(U.shape[0], dtype=np.float64) #space for data from room 2
         recv_npdata(n2, source=1) #recieve data from room 2
         return n2
+
+def floorplan_main(rooms):
+    """
+    :param rooms: List of 3 rooms, [left, middle, right]
+    :returns ndarray: Assignment 1 floorplan
+    """
+    [room_1, room_2, room_3] = rooms
+    room_1 = room_1[:-1,:-1]
+    room_2 = room_2[:-1,:-1]
+    room_3 = room_3[:-1,:-1]
+    empty_space = np.full(room_1.shape, fill_value=np.nan)
+
+    floorplan = np.hstack([
+        np.block([[empty_space], [room_1]]),
+        room_2,
+        np.block([[room_3], [empty_space]])
+    ])
+
+    return floorplan
+
+def floorplan_addition(rooms):
+    """
+    :param rooms: List of 4 rooms, [left, middle, right, small_extension]
+    :returns ndarray: Assignment 1 addition floorplan
+
+    TODO
+    """
+    
+    pass
