@@ -13,9 +13,32 @@ from modules import plot_temperature
 TEST_NAMES = {
     "TEST_STATIC_SQUARE": 1,
     "TEST_ANIMATE_SQUARE": 2,
-    "TEST_BUILD_FLOORPLAN": 10,
-    "TEST_BUILD_FLOORPLAN_OCEAN": 11,
+    "TEST_BUILD_L_FLOORPLAN": 10,
+    "TEST_BUILD_L_FLOORPLAN_OCEAN": 11,
 }
+
+### TEST FLOORPLAN BUILDERS
+
+def get_L_room_frame(n):
+    # Builds a series of three rooms for the L_FLOORPLAN tests.
+    room_1 = np.random.normal(loc=18, scale=1.5, size=(n, n))  # Cool room (~18°C)
+    room_2 = np.random.normal(loc=26, scale=1.0, size=(2*n, n))  # Warm room (~22°C)
+    room_3 = np.random.normal(loc=33, scale=2.0, size=(n, n))  # Hot room (~26°C)
+
+    return [room_1, room_2, room_3]
+
+def L_floorplan_builder(rooms_frame):
+    # Expects a single frame of "rooms" to be a list of 3 rooms.
+    [room_1, room_2, room_3] = rooms_frame
+    empty_space = np.full(room_1.shape, fill_value=np.nan)
+
+    floorplan = np.hstack([
+        np.block([[empty_space], [room_1]]),
+        room_2,
+        np.block([[room_3], [empty_space]])
+    ])
+
+    return floorplan
 
 ### HELPER FUNCS
 
@@ -49,43 +72,29 @@ def test_runner(tests: list[int]):
 
                 plot_temperature(frames, show_animation=True)
             case 10:
-                # Shows a floorplan with localised regions of data, but in the "Ocean" color scheme.
+                # Shows an animated L-shaped floorplan.
                 n = 10
-                empty_space = np.full((n, n), fill_value=np.nan)
-                room_1 = np.random.normal(loc=18, scale=1.5, size=(n, n))  # Cool room (~18°C)
-                room_2 = np.random.normal(loc=26, scale=1.0, size=(2*n, n))  # Warm room (~22°C)
-                room_3 = np.random.normal(loc=33, scale=2.0, size=(n, n))  # Hot room (~26°C)
+                frames = [get_L_room_frame(n) for _ in range(5)]
 
-                floorplan = np.hstack([
-                    np.block([[empty_space], [room_1]]),
-                    room_2,
-                    np.block([[room_3], [empty_space]])
-                ])
-                frames = [floorplan]
-
-                plot_temperature(frames, show_animation=False)
+                plot_temperature(
+                    frames, floorplan_builder=L_floorplan_builder,
+                    show_animation=True
+                )
             case 11:
                 # Shows a floorplan with localised regions of data, but in the "Ocean" color scheme.
                 n = 10
-                empty_space = np.full((n, n), fill_value=np.nan)
-                room_1 = np.random.normal(loc=18, scale=1.5, size=(n, n))  # Cool room (~18°C)
-                room_2 = np.random.normal(loc=26, scale=1.0, size=(2*n, n))  # Warm room (~22°C)
-                room_3 = np.random.normal(loc=33, scale=2.0, size=(n, n))  # Hot room (~26°C)
+                frames = [get_L_room_frame(n) for _ in range(5)]
 
-                floorplan = np.hstack([
-                    np.block([[empty_space], [room_1]]),
-                    room_2,
-                    np.block([[room_3], [empty_space]])
-                ])
-                frames = [floorplan]
-
-                plot_temperature(frames, show_animation=False, cmap="ocean")
+                plot_temperature(
+                    frames, floorplan_builder=L_floorplan_builder,
+                    show_animation=True, cmap="ocean"
+                )
 
 # Run the following tests:
 tests = [
     TEST_NAMES["TEST_STATIC_SQUARE"],
     TEST_NAMES["TEST_ANIMATE_SQUARE"],
-    TEST_NAMES["TEST_BUILD_FLOORPLAN"],
-    TEST_NAMES["TEST_BUILD_FLOORPLAN_OCEAN"],
+    TEST_NAMES["TEST_BUILD_L_FLOORPLAN"],
+    TEST_NAMES["TEST_BUILD_L_FLOORPLAN_OCEAN"],
 ]
 test_runner(tests=tests)
