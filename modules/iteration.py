@@ -6,9 +6,8 @@
 #relax
 #        ↓
 #repeat
-from room_solver import solve_dirichlet as solve
-import geometry as geo
-from matrix import build_matrix_neumann_right, build_rhs_neumann_right, build_matrix_neumann_left, build_rhs_neumann_left, build_internal_matrix, build_rhs_dirichlet
+from .room_solver import room_solver as solve
+from .matrix import build_matrix_neumann_right, build_rhs_neumann_right, build_matrix_neumann_left, build_rhs_neumann_left, build_internal_matrix, build_rhs_dirichlet
 
 def solve_room3(room3, flux, nx, ny, dx):
     A = build_matrix_neumann_left(room3)
