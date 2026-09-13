@@ -39,9 +39,9 @@ def create_room2(dx):
     middle = int(1.0/dx)
 
     U2[0, :] = 40
-    U2[middle:, 0] = 15
+    U2[:middle, 0] = 15
     U2[-1, :] = 5
-    U2[:middle + 1, -1] = 15
+    U2[middle + 1:, -1] = 15
 
     return U2
 
