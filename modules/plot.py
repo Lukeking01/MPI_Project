@@ -86,7 +86,7 @@ def plot_temperature(
 
     # Setup subplots.
     fig, axes = plt.subplots(1, 2, constrained_layout=False)
-    fig.suptitle("Heat Flow Visualized", weight=600, size="xx-large")
+    fig.suptitle("Heat Flow Visualized", weight=700, size="xx-large")
 
     # Adjust figure to reduce excess whitespace and low vertical alignment.
     fig.subplots_adjust(
