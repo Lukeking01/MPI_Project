@@ -65,12 +65,18 @@ def test_runner(tests: list[int]):
                 # Show a square dummy matrix with random data. Static starting/ending frames.
                 frames = [create_dummy_array(n) for n in [50, 30, 20, 15, 12, 10]]
 
-                plot_temperature(frames, show_animation=False)
+                plot_temperature(
+                    frames,
+                    main_title="TEST_STATIC_SQUARE", show_animation=False,
+                )
             case 2:
                 # Show a square dummy matrix with random data. Static starting/ending frames.
                 frames = [create_dummy_array(n) for n in [50, 30, 20, 15, 12, 10]]
 
-                plot_temperature(frames, show_animation=True)
+                plot_temperature(
+                    frames, 
+                    main_title="TEST_ANIMATE_SQUARE", show_animation=True,
+                )
             case 10:
                 # Shows an animated L-shaped floorplan.
                 n = 10
@@ -78,7 +84,7 @@ def test_runner(tests: list[int]):
 
                 plot_temperature(
                     frames, floorplan_builder=L_floorplan_builder,
-                    show_animation=True
+                    main_title="TEST_BUILD_L_FLOORPLAN", show_animation=True,
                 )
             case 11:
                 # Shows a floorplan with localised regions of data, but in the "Ocean" color scheme.
@@ -87,7 +93,7 @@ def test_runner(tests: list[int]):
 
                 plot_temperature(
                     frames, floorplan_builder=L_floorplan_builder,
-                    show_animation=True, cmap="ocean"
+                    main_title="TEST_BUILD_L_FLOORPLAN_OCEAN", show_animation=True, cmap="ocean",
                 )
 
 # Run the following tests:

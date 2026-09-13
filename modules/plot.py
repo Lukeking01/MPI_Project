@@ -57,6 +57,7 @@ def setup_plot_data(room_states, show_animation = False):
 def plot_temperature(
         room_states,
         floorplan_builder = lambda x: x,
+        main_title = "Heat Flow Visualized",
         show_animation = False,
         norm_min = 0,
         norm_max = 40,
@@ -70,7 +71,8 @@ def plot_temperature(
     the result after "n" iterations.
 
     :param room_states: A list of snapshots, each one a list of individual room states. Expecting that those room states are ordered [room_1, room_2, ...] matching the assignment diagram.
-    :param floorplan_builder: ...
+    :param floorplan_builder: A function which is expected to run on each frame of "rooms" state passed as input. For instance, if each frame of rooms state is [room_1, room_2, room_3], that array will be passed to this builder function. The builder function will then construct a single nparray to serve as the floorplan and return that to be rendered by the plotting logic. (Note: See the plot_visuals test file for example usage.)
+    :param main_title: The title to display for the plot window.
     :param show_animation: Set to True to show an animation through all room states in the left plot. Otherwise will display the heatmap of the initial frame.
     :param norm_min: Minimum expected value to set to the "coolest" color.
     :param norm_max: Maximum expected value to set to the "hottest" color.
@@ -88,7 +90,7 @@ def plot_temperature(
 
     # Setup subplots.
     fig, axes = plt.subplots(1, 2, constrained_layout=False)
-    fig.suptitle("Heat Flow Visualized", weight=700, size="xx-large")
+    fig.suptitle(main_title, weight=700, size="xx-large")
 
     # Adjust figure to reduce excess whitespace and low vertical alignment.
     fig.subplots_adjust(
@@ -141,4 +143,5 @@ def plot_temperature(
     # Display shared colorbar
     fig.colorbar(images[1], ax=axes, orientation='horizontal', fraction=0.05)
 
+    # Finally, show plot as a maximized window
     plt.show()
