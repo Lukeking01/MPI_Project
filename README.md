@@ -12,7 +12,24 @@ To run the main file, you must have OpenMPI installed, and run the following:
 mpiexec -n 3 python main.py
 ```
 
-## Output
+This runs main.py using mpiexec which should spin up three threads to handle
+the computation. After a short delay, you should see a plot visualizing an
+animation through the iterations of the program, and the final state it ended on.
+
+Several aspects related to the plotting can be configured in main.py, for instance
+the cmap can be changed to change the color mapping in the heatmaps, and the
+animation can be toggled On/Off.
+
+## Example Output
+
+These two examples were created with the same initial conditions and
+parameters, but demonstrate the different plotting schemes available.
+
+Since the "ocean" theme includes green values at the low end, the minimum
+was dropped for better visual clarity.
+
+<img src="./imgs/sample-heat-flow-animated.png" style="display: inline-block; width: 49%;">
+<img src="./imgs/ocean-flow-animated.png" style="display: inline-block; width: 49%;">
 
 ## Project Files
 
