@@ -56,6 +56,7 @@ def setup_plot_data(room_states, show_animation = False):
 
 def plot_temperature(
         room_states,
+        floorplan_builder = lambda x: x,
         show_animation = False,
         norm_min = 0,
         norm_max = 40,
@@ -68,7 +69,8 @@ def plot_temperature(
     the frames, pausing at the end. The second heatmap will always show the final state,
     the result after "n" iterations.
 
-    :param room_states: A list of snapshots, each one a list of individual room states. Expecting that those room states are ordered \[room_1, room_2, ...\] matching the assignment diagram.
+    :param room_states: A list of snapshots, each one a list of individual room states. Expecting that those room states are ordered [room_1, room_2, ...] matching the assignment diagram.
+    :param floorplan_builder: ...
     :param show_animation: Set to True to show an animation through all room states in the left plot. Otherwise will display the heatmap of the initial frame.
     :param norm_min: Minimum expected value to set to the "coolest" color.
     :param norm_max: Maximum expected value to set to the "hottest" color.
@@ -99,9 +101,14 @@ def plot_temperature(
     norm = mcolors.Normalize(vmin=norm_min, vmax=norm_max)
     colorizer = mcolorizer.Colorizer(norm=norm, cmap=cmap)
 
+    # Run each frame of room_states passed as input through the builder function to construct
+    # frames of floorplans for display. Naturally it is assumed that the data and function are
+    # compatible.
+    floorplan_frames = [floorplan_builder(rooms) for rooms in room_states]
+
     # Attach heatmap to each of the three displays.
     images = []
-    for ax, plot_data in zip(axes.flat, setup_plot_data(room_states, show_animation)):
+    for ax, plot_data in zip(axes.flat, setup_plot_data(floorplan_frames, show_animation)):
         # Update subplot title
         ax.set_title(plot_data["title"], size="x-large")
         # Clean subplot details
@@ -135,41 +142,3 @@ def plot_temperature(
     fig.colorbar(images[1], ax=axes, orientation='horizontal', fraction=0.05)
 
     plt.show()
-
-
-##########################################################################################
-
-# TODO Remove once main.py connects to this file properly!
-# LOCAL TESTING FOR PLOTTING FUNCTIONS
-
-def create_dummy_array(m: int, n: int = None):
-    """
-    Dummy function, simply creates a mock output of an m x n grid, with random temperature
-    data in cells ranging from 20 to 80.
-    """
-    if not n:
-        n = m
-    
-    return 15 + 20 * np.random.random((m, n))
-
-# --- Simple dummy example ---
-dummy_data = [create_dummy_array(n) for n in [50, 30, 20, 15, 12, 10]]
-
-# --- More fluid room layout example ---
-# TODO Needs a better stacking alg I reckon...
-n = 10
-empty_space = np.full((n, n), fill_value=np.nan)
-room_1 = np.random.normal(loc=18, scale=1.5, size=(10, 10))  # Cool room (~18°C)
-room_2 = np.random.normal(loc=26, scale=1.0, size=(20, 10))  # Warm room (~22°C)
-room_3 = np.random.normal(loc=33, scale=2.0, size=(10, 10))  # Hot room (~26°C)
-floorplan = [np.hstack([
-    np.block([[empty_space], [room_1]]),
-    room_2,
-    np.block([[room_3], [empty_space]])
-])]
-
-# --- Choose dummy test plot data ---
-plot_temperature(dummy_data, True) # Shows animation
-# plot_temperature(floorplan, True, cmap="ocean") # Shows floor layout stitching
-
-##########################################################################################
