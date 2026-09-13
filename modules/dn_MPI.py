@@ -64,7 +64,9 @@ def dn_iteration(room, dx, rank):
 def dirichlet_neumann(room, dx, rank, iterations=10, omega=0.8):
     states = []
 
-    
+    states.append(
+                room.copy()
+                )
     
     for k in range(iterations):
         
@@ -74,9 +76,7 @@ def dirichlet_neumann(room, dx, rank, iterations=10, omega=0.8):
             room, dx, rank
         )
         
-        states.append(
-                        room.copy()
-                        )
+        
 
         room = relax(new_room, room, omega)
 

@@ -35,18 +35,20 @@ def main():
         room2 = create_room2(DX)
         room3 = create_room3(DX)
         data2 = np.empty(
-            (N_ITERATIONS, *room2.shape),
+            (N_ITERATIONS+1, *room2.shape),
             dtype=float
         )
         data3 = np.empty(
-            (N_ITERATIONS, *room3.shape),
+            (N_ITERATIONS+1, *room3.shape),
             dtype=float
         )
+                
 
         recv_npdata(data2, 1)
         recv_npdata(data3, 2)
 
-        data = zip(solution,data2,data3)
+        data = [(solution[i],data2[i],data3[i]) for i in range(N_ITERATIONS+1)]
+        plot_temperature(data)
         
     if rank == 1:
         send_npdata(solution,0)
@@ -54,7 +56,7 @@ def main():
     if rank == 2:
         send_npdata(solution,0)
     
-    plot_temperature(data)
+    
 
 
 if __name__ == "__main__":

@@ -17,7 +17,7 @@ def solve_room3(room3, flux, nx, ny, dx):
     room3[1:-1, 1:-1] = solution.reshape((ny, nx))
 
     # Reconstruct the interface boundary
-    room3[1:-1, 0] = room3[1:-1, 1] - dx * flux
+    room3[:, 0] = room3[:, 1] - dx * flux
 
     return room3
 
@@ -42,7 +42,7 @@ def solve_room1(room1, flux, nx, ny, dx):
     room1[1:-1, 1:-1] = solution.reshape((ny, nx))
 
     # Reconstruct the interface boundary
-    room1[1:-1, -1] = room1[1:-1, -2] + dx * flux
+    room1[:, -1] = room1[:, -2] + dx * flux
 
     return room1
 
