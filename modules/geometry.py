@@ -1,5 +1,5 @@
 import numpy as np
-from MPI import send_npdata, recv_npdata, get_rank
+from .MPI import send_npdata, recv_npdata, get_rank
 ### apartment layout
 
 def create_room1(dx):
@@ -93,8 +93,8 @@ def get_interfaces(U, dx):
     elif rank == 1:
         d1_recv = np.zeros(middle + 1, dtype=np.float64) #empty spaces to store the data
         d2_recv = np.zeros(U.shape[0] - middle, dtype=np.float64)
-        recv_npdata(d1_recv, dest = 0) #get values from room 1
-        recv_npdata(d2_recv, dest = 2) #get values from room 3
+        recv_npdata(d1_recv, source = 0) #get values from room 1
+        recv_npdata(d2_recv, source = 2) #get values from room 3
         U[:middle + 1, 0] = d1_recv #apply the values to room 2
         U[middle:, -1] = d2_recv
 
@@ -108,9 +108,9 @@ def get_interfaces(U, dx):
         return U
     elif rank == 0:
         n1 = np.zeros(middle + 1, dtype=np.float64) #space for data from room 2
-        recv_npdata(n1, dest=1) #recieve data from room 2
+        recv_npdata(n1, source=1) #recieve data from room 2
         return n1
     elif rank == 2:
         n2 = np.zeros(U.shape[0], dtype=np.float64) #space for data from room 2
-        recv_npdata(n2, dest=1) #recieve data from room 2
+        recv_npdata(n2, source=1) #recieve data from room 2
         return n2
