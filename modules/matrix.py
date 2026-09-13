@@ -135,7 +135,7 @@ def build_rhs_neumann_right(room, flux):
 
             # Right Neumann boundary
             if i == nx - 1:
-                b[p] += dx * flux[j]
+                b[p] -= dx * flux[j]
 
     return b
 

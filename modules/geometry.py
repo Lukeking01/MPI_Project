@@ -95,8 +95,8 @@ def get_interfaces(U, dx):
         d2_recv = np.zeros(U.shape[0] - middle, dtype=np.float64)
         recv_npdata(d1_recv, source = 0) #get values from room 1
         recv_npdata(d2_recv, source = 2) #get values from room 3
-        U[:middle + 1, 0] = d1_recv #apply the values to room 2
-        U[middle:, -1] = d2_recv
+        U[:middle + 1, -1] = d2_recv #apply the values to room 2
+        U[middle:, 0] = d1_recv
 
     #Neumann boundary conditions
     if rank == 1:
