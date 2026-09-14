@@ -32,10 +32,7 @@ def dn_iteration(room, dx, rank, include_room4=False):
         # -----------------------------------------
 
         if include_room4:
-            print(f"DEBUG before room4 interface: {room[room4_start:room4_end, -1]}", flush=True)
             get_interface_room4(room,dx)
-            print(f"DEBUG after room4 interface: {room[room4_start:room4_end, -1]}", flush=True)
-
         room = solve_room2(room)
         print(f"DEBUG room2 min/max: {room.min():.2f}, {room.max():.2f}", flush=True)
        

@@ -9,7 +9,7 @@ from modules.plot import plot_temperature
 import numpy as np
 
 
-DX = 1 / 20
+DX = 1 / 30
 OMEGA = 0.8 
 N_ITERATIONS = 10
 # TODO If Animate is not set to True, then there's no need to waste memory storing all the room states
