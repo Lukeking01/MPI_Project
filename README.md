@@ -80,6 +80,9 @@ was dropped for better visual clarity.
     - Implementation of finite difference matrix (matrix.py).
     - Main iteration for dirichlet neumann cycles (dn_MPI.py).
 - Linn Preuss Jelvez
+    - Implemented solver (room_solver.py).
+    - Added room 4: room, interface, new floorplan.
+    - Solved and plotted including room 4.      
 - Orsolya Bosáková
     - Set up of the geometry of the three rooms (geometry.py)
     - Calculate the initial boundary conditions for the interfaces
