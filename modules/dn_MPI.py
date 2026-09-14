@@ -11,6 +11,7 @@ import numpy as np
 from .geometry import get_interfaces, get_interface_room4
 from .iteration import solve_room1, solve_room2, solve_room3, solve_room4
 from .MPI import send_npdata, recv_npdata
+from .constants import *
 
 def dn_iteration(room, dx, rank, include_room4=False):
     """
@@ -152,10 +153,15 @@ def dirichlet_neumann(room, dx, rank, iterations=10, omega=0.8, include_room4=Fa
         room = relax(new_room, old_room, omega)
 
         # Save a copy of this iteration
-        states.append(
-            room.copy()
-        )
-        print(f"Iteration {k}")
+        if ANIMATE:
+            states.append(
+                room.copy()
+            )
+        elif (k == iterations-1) or (k == 0):
+            states.append(
+                room.copy()
+            )
+        print(f"Iteration {k +1 } finished")
     return np.array(states)
 
 def relax(u_new, u_old, omega):
