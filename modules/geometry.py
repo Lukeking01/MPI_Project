@@ -192,7 +192,7 @@ def get_interface_room4(U,dx):
     elif rank == 3:
         n4 = np.zeros(room4_end-room4_start, dtype=np.float64)
         recv_npdata(n4, source=1)
-        return n4
+        return -n4
 
 def floorplan_addition(rooms):
     """

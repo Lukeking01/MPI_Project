@@ -61,7 +61,7 @@ def dn_iteration(room, dx, rank, include_room4=False):
         # -----------------------------------------
         # 5. Solve Room 3 with Neumann
         # -----------------------------------------
-        flux3 = get_interfaces(room,dx)[1:-1]
+        flux3 = -1*get_interfaces(room,dx)[1:-1]
         room3 = solve_room3(
             room,
             flux3,
@@ -71,7 +71,7 @@ def dn_iteration(room, dx, rank, include_room4=False):
         )
         return room3
     if rank == 3:
-        flux4 = get_interface_room4(room,dx)[1:-1]
+        flux4 = -1*get_interface_room4(room,dx)[1:-1]
         room4 = solve_room4(room, flux4, nx, ny, dx)
         print(f"DEBUG room4 min/max: {room4.min():.2f}, {room4.max():.2f}", flush=True)
         
