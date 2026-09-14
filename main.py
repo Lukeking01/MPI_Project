@@ -2,39 +2,44 @@
 ### Placeholder import
 # TODO
 # setup init file for these functions
-from modules.geometry import create_room1, create_room2, create_room3, floorplan_main
+from modules.geometry import create_room1, create_room2, create_room3, create_room4, floorplan_main, floorplan_addition
 from modules.MPI import send_npdata, recv_npdata, get_rank
 from modules.dn_MPI import dirichlet_neumann
 from modules.plot import plot_temperature
 import numpy as np
 
 
-DX = 1 / 80
+
+DX = 1 / 20
 OMEGA = 0.8 
 N_ITERATIONS = 10
 ANIMATE = True
 CROP = False
+INCLUDE_ROOM4 = True
 
 def main():
     rank = get_rank()
-    
+    print(f"DEBUG: rank={rank}", flush=True)
     if rank == 0:
         room = create_room1(DX)
     if rank == 1:
-        room = create_room2(DX)
+        room = create_room2(DX, include_room4=INCLUDE_ROOM4)
     if rank == 2:
         room = create_room3(DX)
+    if rank == 3:
+        room = create_room4(DX)
 
     solution = dirichlet_neumann(
         room,
         dx = DX,
         rank = rank,
         iterations = N_ITERATIONS,
-        omega = OMEGA
+        omega = OMEGA,
+        include_room4=INCLUDE_ROOM4
         )
     if rank == 0:
         
-        room2 = create_room2(DX)
+        room2 = create_room2(DX, include_room4=INCLUDE_ROOM4)
         room3 = create_room3(DX)
         data2 = np.empty(
             (N_ITERATIONS+1, *room2.shape),
@@ -49,17 +54,35 @@ def main():
         recv_npdata(data2, 1)
         recv_npdata(data3, 2)
 
+
+        if INCLUDE_ROOM4:
+            room4=create_room4(DX)
+            data4=np.empty((N_ITERATIONS+1, *room4.shape), dtype=float)
+            recv_npdata(data4,3)
+            data=[[solution[i], data2[i], data3[i], data4[i]] for i in range(N_ITERATIONS+1)]
+            floorplan_builder = floorplan_addition
+        else:
+            data = [[solution[i],data2[i],data3[i]] for i in range(N_ITERATIONS+1)]
+            floorplan_builder=floorplan_main
+
+        plot_temperature(data, floorplan_builder=floorplan_builder, show_animation=True)
+            
+
         if CROP:
             data = [[solution[i][1:-1,1:-1],data2[i][1:-1,1:-1],data3[i][1:-1,1:-1]] for i in range(N_ITERATIONS+1)]
         else:
             data = [[solution[i],data2[i],data3[i]] for i in range(N_ITERATIONS+1)]
         plot_temperature(data, floorplan_builder=floorplan_main, show_animation=ANIMATE)
         
+
     if rank == 1:
         send_npdata(solution,0)
         
     if rank == 2:
         send_npdata(solution,0)
+
+    if rank == 3:
+        send_npdata(solution ,0)
     
     
 

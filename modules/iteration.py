@@ -46,6 +46,16 @@ def solve_room1(room1, flux, nx, ny, dx):
 
     return room1
 
+def solve_room4(room4, flux, nx, ny, dx):
+    A = build_matrix_neumann_left(room4)
+    b = build_rhs_neumann_left(room4, flux)
+
+    solution = solve(A,b)
+    room4[1:-1,1:-1] = solution.reshape((ny,nx))
+    room4[1:-1,0] = room4[1:-1,1]-dx*flux
+
+    return room4
+
 def solve_room(room, rhs, A):
     """
     Solve A u = b and put the solution into

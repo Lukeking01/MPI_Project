@@ -22,11 +22,12 @@ def create_room1(dx):
 
     return U1
 
-def create_room2(dx):
+def create_room2(dx, include_room4=False):
     '''Initialize room 2 (1x2)
     Parameters: 
     dx : float
         Step size for the grid.
+    If room4 is included: leaves interface at 0.  
     Returns:
     U2 : ndarray
         (ny, nx) array with the initial temperatures at the boundary'''
@@ -42,6 +43,12 @@ def create_room2(dx):
     U2[:middle, 0] = 15
     U2[-1, :] = 5
     U2[middle + 1:, -1] = 15
+
+    if include_room4:
+        half = int(0.5/dx)+1
+        room4_start=middle+1
+        room4_end=room4_start+half
+        U2[room4_start:room4_end, -1]=0
 
     return U2
 
@@ -146,12 +153,65 @@ def floorplan_main(rooms):
 
     return floorplan
 
+
+def create_room4(dx):
+    x= int(0.5/dx) +1
+    y= int (0.5/dx) +1
+
+    U4 = np.zeros((x,y))
+
+    U4[-1, :]=40
+    U4[:, -1]=15
+    U4[0,:]=15
+    return U4
+
+def get_interface_room4(U,dx):
+    """ Boundary between room2 and room4. 
+    """
+    rank = get_rank()
+    middle = int(1.0/dx)
+    half = int(0.5/dx)+1
+    room4_start = middle+1
+    room4_end=room4_start+half
+
+     #Dirichlet BC
+    if rank == 3:
+        ts = np.ascontiguousarray(U[:,0], dtype=np.float64)
+        send_npdata(ts, dest=1)
+    elif rank ==1:
+        d4_recv = np.zeros(room4_end-room4_start, dtype=np.float64)
+        recv_npdata(d4_recv, source=3)
+        U[room4_start:room4_end, -1] = d4_recv
+        
+    #Neumann BC
+    if rank == 1:
+        n4 = np.ascontiguousarray((U[room4_start:room4_end,-1]-U[room4_start:room4_end, -2])/dx,
+                                   dtype=np.float64)
+        send_npdata(n4,dest=3)
+        return U
+    elif rank == 3:
+        n4 = np.zeros(room4_end-room4_start, dtype=np.float64)
+        recv_npdata(n4, source=1)
+        return n4
+
 def floorplan_addition(rooms):
     """
     :param rooms: List of 4 rooms, [left, middle, right, small_extension]
     :returns ndarray: Assignment 1 addition floorplan
-
-    TODO
     """
-    
-    pass
+
+    [room_1, room_2, room_3, room_4] = rooms
+    room_width=room_1.shape[1]
+
+    max_room_height=max(room_2.shape[0], room_3.shape[0]+room_4.shape[0])
+    floorplan_shape = (max_room_height, 3*room_width)
+    floorplan = np.full(floorplan_shape, fill_value=np.nan, dtype=np.float64)
+
+    room_offsets= [(room_2.shape[0]-room_1.shape[0],0), (0,room_width), (0,room_width*2),
+                    (room_3.shape[0], room_width*2),]
+
+    for room, (r_off,c_off) in zip(rooms,room_offsets):
+        h, w = room.shape
+        floorplan[r_off:r_off+h, c_off:c_off+w] = room
+
+    return floorplan
