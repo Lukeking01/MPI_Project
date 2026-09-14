@@ -30,6 +30,10 @@ The heating looks fairly accurate, though the level of detail is limited with dx
 
 3. **Task 3:** Plotted temperature distribution
 
+Plot with a mesh width $dx = 1 / 20$:
+
+<img src="./imgs/20x20-floorplan.png" style="display: block; width: 50%; margin-inline: auto;">
+
 4. **Task 4:** Varying parameters
 
     1. Adjusting iterations
@@ -45,6 +49,10 @@ The heating looks fairly accurate, though the level of detail is limited with dx
 2. **Task 2:** Is heating in the flat accurate?
 
 3. **Task 3:** Plotted temperature distribution
+
+Plot with a mesh width $dx = 1 / 100$:
+
+<img src="./imgs/100x100-floorplan-ext.png" style="display: block; width: 50%; margin-inline: auto;">
 
 4. **Task 4:** Varying parameters
 
