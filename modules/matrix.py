@@ -1,9 +1,38 @@
 
+"""
+Finite-difference matrices and right-hand sides for the heat equation.
+
+This module builds the discrete Laplace operator on a uniform Cartesian
+grid for both pure Dirichlet problems and mixed Dirichlet-Neumann
+problems that arise in the Dirichlet-Neumann domain-decomposition
+scheme.
+"""
+
 import numpy as np
 def build_internal_matrix(room):
     """
     Build the finite-difference matrix for the interior unknowns.
-    """
+
+    The matrix corresponds to the standard five-point stencil
+
+        u_{i-1,j} + u_{i+1,j} + u_{i,j-1} + u_{i,j+1} - 4 u_{i,j} = 0
+
+    on the interior nodes only.  Boundary contributions are moved to the
+    right-hand side by the companion RHS builders.
+
+    Parameters
+    ----------
+    room : ndarray
+        Temperature field of shape ``(ny+2, nx+2)`` that includes a one-cell
+        layer of boundary values.  Only the shape is used; the values
+        themselves are ignored.
+
+    Returns
+    -------
+    ndarray
+        Dense matrix of shape ``((nx*ny), (nx*ny))`` where
+        ``nx = room.shape[1]-2`` and ``ny = room.shape[0]-2``.
+    """"
     ny, nx = room.shape
     ny -= 2
     nx -= 2
@@ -39,7 +68,23 @@ def build_internal_matrix(room):
 
 def build_rhs_dirichlet(room):
     """
-    Build RHS for a room with Dirichlet boundary conditions.
+    Build the right-hand side for a pure Dirichlet problem.
+
+    All four sides of the room are treated as Dirichlet boundaries.
+    Their known values are moved to the right-hand side of the linear
+    system that is formed with :func:`build_internal_matrix`.
+
+    Parameters
+    ----------
+    room : ndarray
+        Temperature field of shape ``(ny+2, nx+2)`` containing the
+        current Dirichlet data on all four boundaries.
+
+    Returns
+    -------
+    ndarray
+        Vector of length ``nx*ny`` that forms the right-hand side of
+        ``A u = b``.
     """
     ny, nx = room.shape
     ny -= 2
@@ -73,14 +118,26 @@ def build_rhs_dirichlet(room):
 
 def build_matrix_neumann_right(room):
     """
-    Build matrix for a room with a Neumann condition
-    on the right boundary.
+    Build the system matrix for a Neumann condition on the right boundary.
 
-    Uses:
+    Starting from the pure interior matrix, the diagonal entry of every
+    node adjacent to the right boundary is changed from -4 to -3.  This
+    corresponds to the second-order approximation
+
         u_ghost = u_interior - dx * flux
 
-    which changes -4 to -3 for points adjacent
-    to the Neumann boundary.
+    that eliminates the fictitious exterior node.
+
+    Parameters
+    ----------
+    room : ndarray
+        Temperature field whose shape determines the grid size
+        (``ny+2, nx+2``).
+
+    Returns
+    -------
+    ndarray
+        Modified dense matrix of shape ``((nx*ny), (nx*ny))``.
     """
     ny, nx = room.shape
     ny -= 2
@@ -100,13 +157,26 @@ def build_matrix_neumann_right(room):
 
 def build_rhs_neumann_right(room, flux):
     """
-    Build RHS for:
+    Build the right-hand side for a Neumann condition on the right side.
 
-        - Dirichlet on left, bottom and top
-        - Neumann on right
+    The left, bottom and top boundaries remain Dirichlet; the right
+    boundary is Neumann.  The supplied flux values appear on the
+    right-hand side multiplied by the mesh width ``dx``.
 
-    flux[j] contains one flux value for each
-    interior row.
+    Parameters
+    ----------
+    room : ndarray
+        Temperature field of shape ``(ny+2, nx+2)`` containing the
+        known Dirichlet data on the three non-Neumann sides.
+    flux : ndarray
+        One-dimensional array of length ``ny`` holding the Neumann flux
+        at each interior row of the right boundary.
+
+    Returns
+    -------
+    ndarray
+        Vector of length ``nx*ny`` that forms the right-hand side of
+        the linear system.
     """
     ny, nx = room.shape
     ny -= 2
@@ -140,6 +210,23 @@ def build_rhs_neumann_right(room, flux):
     return b
 
 def build_matrix_neumann_left(room):
+    """
+    Build the system matrix for a Neumann condition on the left boundary.
+
+    Analogous to :func:`build_matrix_neumann_right`, the diagonal entry of
+    every node adjacent to the left boundary is changed from -4 to -3.
+
+    Parameters
+    ----------
+    room : ndarray
+        Temperature field whose shape determines the grid size
+        (``ny+2, nx+2``).
+
+    Returns
+    -------
+    ndarray
+        Modified dense matrix of shape ``((nx*ny), (nx*ny))``.
+    """
     ny, nx = room.shape
     ny -= 2
     nx -= 2
@@ -156,11 +243,27 @@ def build_matrix_neumann_left(room):
 
 def build_rhs_neumann_left(room, flux):
     """
-    Left boundary = Neumann
-    Right boundary = heater
-    Top/bottom = normal walls
-    """
+    Build the right-hand side for a Neumann condition on the left side.
 
+    The right, bottom and top boundaries remain Dirichlet; the left
+    boundary is Neumann.  The supplied flux values appear on the
+    right-hand side multiplied by the mesh width ``dx``.
+
+    Parameters
+    ----------
+    room : ndarray
+        Temperature field of shape ``(ny+2, nx+2)`` containing the
+        known Dirichlet data on the three non-Neumann sides.
+    flux : ndarray
+        One-dimensional array of length ``ny`` holding the Neumann flux
+        at each interior row of the left boundary.
+
+    Returns
+    -------
+    ndarray
+        Vector of length ``nx*ny`` that forms the right-hand side of
+        the linear system.
+    """
     ny, nx = room.shape
     ny -= 2
     nx -= 2
