@@ -38,9 +38,15 @@ The heating looks fairly accurate, though the level of detail is limited with dx
 
     1. Adjusting iterations
 
-    2. Adjusting dx
+    > As can be seen by animating from start to finish, past iteration 5 it becomes increasingly difficult to tell any difference between iterations. <br><br>The rooms seem to settle into a stable state, which further iterations don't seem to affect very much.
+
+    2. Adjusting $dx$
+
+    > Naturally, it is obvious from the resulting plotted meshes that reducing $dx$ increases the number of points/cells that makes up a room. Rooms with large $dx$ look blocky, while small $dx$ yields a much smoother pattern.<br><br>It is also much more clear with smaller $dx$ where the heating and cooling sources lie. For instance with $dx = 1 / 4$, the temperatures across the rooms vary between roughly 10 and 30, whereas with $dx = 1 / 30$, the values near the border seem to much more closely match the original temperatures, 5 and 40. 
     
     3. Adjusting smoothing param
+
+    > As expected, when you reduce the value of the smoothing parameter, it reduces the total change of temperature between iterations. For instance, setting the smoothing param to 0.9 usually results in a stable room state in around 2 or 3 iterations. When that param was reduced to 0.6, it took around 6 to 7 iterations to reach a stable state.
 
 ### Extension
 
@@ -56,11 +62,7 @@ The heating looks fairly accurate, though the level of detail is limited with dx
 
 4. **Task 4:** Varying parameters
 
-    1. Adjusting iterations
-
-    2. Adjusting dx
-    
-    3. Adjusting smoothing param
+    > Adjusting the parameters with the room extension added did not introduce any new behavior. So the same results from **Task 4** on the main assignment with three rooms were experienced even after adding the extension.
 
 ## Example Output
 
@@ -99,7 +101,6 @@ was dropped for better visual clarity.
 - Scott Gibson
     - Plotting & Floorplan builder functions
     - Visual test file for plots
-- Mennaallah Ali Abdellatif Mohamed Alashery
 
 ## Potential Flaws and Notes for Improvement
 
