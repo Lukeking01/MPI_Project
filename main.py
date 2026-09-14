@@ -9,9 +9,12 @@ from modules.plot import plot_temperature
 import numpy as np
 
 
-DX = 1 / 30
-OMEGA = 0.8
+
+DX = 1 / 20
+OMEGA = 0.8 
 N_ITERATIONS = 10
+ANIMATE = True
+CROP = False
 INCLUDE_ROOM4 = True
 
 def main():
@@ -51,6 +54,7 @@ def main():
         recv_npdata(data2, 1)
         recv_npdata(data3, 2)
 
+
         if INCLUDE_ROOM4:
             room4=create_room4(DX)
             data4=np.empty((N_ITERATIONS+1, *room4.shape), dtype=float)
@@ -63,6 +67,14 @@ def main():
 
         plot_temperature(data, floorplan_builder=floorplan_builder, show_animation=True)
             
+
+        if CROP:
+            data = [[solution[i][1:-1,1:-1],data2[i][1:-1,1:-1],data3[i][1:-1,1:-1]] for i in range(N_ITERATIONS+1)]
+        else:
+            data = [[solution[i],data2[i],data3[i]] for i in range(N_ITERATIONS+1)]
+        plot_temperature(data, floorplan_builder=floorplan_main, show_animation=ANIMATE)
+        
+
     if rank == 1:
         send_npdata(solution,0)
         
