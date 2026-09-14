@@ -9,10 +9,11 @@ from modules.plot import plot_temperature
 import numpy as np
 
 
-
 DX = 1 / 20
 OMEGA = 0.8 
 N_ITERATIONS = 10
+# TODO If Animate is not set to True, then there's no need to waste memory storing all the room states
+# for the iterations. Only the first frame and last frame are needed.
 ANIMATE = True
 CROP = False
 INCLUDE_ROOM4 = True
@@ -26,7 +27,7 @@ def main():
         room = create_room2(DX, include_room4=INCLUDE_ROOM4)
     if rank == 2:
         room = create_room3(DX)
-    if rank == 3:
+    if INCLUDE_ROOM4 and rank == 3:
         room = create_room4(DX)
 
     solution = dirichlet_neumann(
@@ -65,14 +66,12 @@ def main():
             data = [[solution[i],data2[i],data3[i]] for i in range(N_ITERATIONS+1)]
             floorplan_builder=floorplan_main
 
-        plot_temperature(data, floorplan_builder=floorplan_builder, show_animation=True)
-            
-
         if CROP:
-            data = [[solution[i][1:-1,1:-1],data2[i][1:-1,1:-1],data3[i][1:-1,1:-1]] for i in range(N_ITERATIONS+1)]
-        else:
-            data = [[solution[i],data2[i],data3[i]] for i in range(N_ITERATIONS+1)]
-        plot_temperature(data, floorplan_builder=floorplan_main, show_animation=ANIMATE)
+            data = [[room[1:-1,1:-1] for room in rooms] for rooms in data]
+
+        if not ANIMATE:
+            data = data[1:]
+        plot_temperature(data, floorplan_builder=floorplan_builder, show_animation=ANIMATE)
         
 
     if rank == 1:
