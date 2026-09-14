@@ -46,8 +46,8 @@ plotting
 ## Collaborator Efforts
 
 - Lukas Nord
-    - Item 1
-    - Item 2
+    - Implementation of finite difference matrix (matrix.py).
+    - Main iteration for dirichlet neumann cycles (dn_MPI.py).
 - Linn Preuss Jelvez
 - Orsolya Bosáková
 - Scott Gibson
@@ -64,5 +64,4 @@ plotting
 - additional room
       - Build room
 - check overall compatibility
-- Modularize matrix generation
 - Fuck around and find out
