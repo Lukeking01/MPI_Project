@@ -20,6 +20,38 @@ Several aspects related to the plotting can be configured in main.py, for instan
 the cmap can be changed to change the color mapping in the heatmaps, and the
 animation can be toggled On/Off.
 
+## Assignment Tasks
+
+1. **Task 1:** Dirichlet-Neumann matrices when mesh width dx = 1 / 3
+
+2. **Task 2:** Is heating in the flat accurate?
+
+3. **Task 3:** Plotted temperature distribution
+
+4. **Task 4:** Varying parameters
+
+    1. Adjusting iterations
+
+    2. Adjusting dx
+    
+    3. Adjusting smoothing param
+
+### Extension
+
+1. **Task 1:** Dirichlet-Neumann matrices when mesh width dx = 1 / 3
+
+2. **Task 2:** Is heating in the flat accurate?
+
+3. **Task 3:** Plotted temperature distribution
+
+4. **Task 4:** Varying parameters
+
+    1. Adjusting iterations
+
+    2. Adjusting dx
+    
+    3. Adjusting smoothing param
+
 ## Example Output
 
 These two examples were created with the same initial conditions and
@@ -35,8 +67,7 @@ was dropped for better visual clarity.
 ## Project Files
 
 - **main.py** -	Project entrypoint
-- **geometry.py** -	Defines rooms, their interfaces, and floorplan builders for
-plotting
+- **geometry.py** -	Defines rooms, their interfaces, and floorplan builders for plotting
 - **matrix.py** - Construct the finite-difference matrices
 - **room_solver.py** - Solve one room with given boundary conditions
 - **dn_MPI.py** - Implement the Dirichlet-Neumann iteration and relaxation
@@ -55,6 +86,7 @@ plotting
     - Visual test file for plots
 - Mennaallah Ali Abdellatif Mohamed Alashery
 
+## Potential Flaws and Notes for Improvement
 
 ## TODO
 - MPI (Scotts on it) (✓)
