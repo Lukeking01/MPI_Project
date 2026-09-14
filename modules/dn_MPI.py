@@ -85,13 +85,13 @@ def dirichlet_neumann(room, dx, rank, iterations=10, omega=0.8, include_room4=Fa
     
     for k in range(iterations):
         print("Starting iteration:", k + 1)
-        room = room.copy()
+        old_room = room.copy()
 
         new_room = dn_iteration(
             room, dx, rank, include_room4=include_room4
         )
 
-        room = relax(new_room, room, omega)
+        room = relax(new_room, old_room, omega)
 
         # Save a copy of this iteration
         states.append(
