@@ -27,6 +27,7 @@ animation can be toggled On/Off.
 ### A matrices:
 
 #### room 1
+In room 1, we can see the diagonal consisting of -4 and -3 values. The -4 value comes from the Laplace equation with 2nd order central differences. The -3 value appears, because of the interior points next to the Neumann interface $\Gamma_1$. Overall, the matrix is of size 4x4.
    
           [[-4.  1.  1.  0.]
              [ 1. -3.  0.  1.]
@@ -34,6 +35,7 @@ animation can be toggled On/Off.
              [ 0.  1.  1. -3.]]
 
  #### room 2
+In room 2, we can see the diagonal consisting of -4 values, due to the Laplace equation. The off diagonal values of 1 are due to the connections to other interior points in the directions up, down, right or left. The size of this matrix is 10x10.
 
        [[-4.  1.  1.  0.  0.  0.  0.  0.  0.  0.]
          [ 1. -4.  0.  1.  0.  0.  0.  0.  0.  0.]
@@ -47,6 +49,7 @@ animation can be toggled On/Off.
          [ 0.  0.  0.  0.  0.  0.  0.  1.  1. -4.]]
 
  #### room 3
+Room 3 is similar to room 2, except for the order of the values on the diagonal, which in this case correspond to the other interface $\Gamma_2$. The size of the matrix is 4x4, just like in the case of room 1.
    
        [[-3.  1.  1.  0.]
          [ 1. -4.  0.  1.]
@@ -54,19 +57,23 @@ animation can be toggled On/Off.
          [ 0.  1.  1. -4.]]
 ### b matrices:
 
-  #### room 1
+#### room 1
+The right hand side vector for room one stores the Dirichlet boundary values combined with the Neumann flux derivatives and stores them as an array.
     
             [-55.         -16.66666667 -55.         -16.66666667]
 #### room 2
+The vector for room 2 consists of the fixed temperature values of the outer walls and the Dirichlet values obtained from rooms 1 and 3.
 
             [-55. -40. -15.   0. -15. -15.   0. -15.  -5. -20.]
 #### room 3 
+Just as the vector for room 1, room 3 stores the Dirichlet boundary values combined with the Neumann flux derivatives.
 
             [-17.77777778 -55.         -13.33333333 -55.        ]
 
 ### Solved matrices:
 
  #### room 1
+This matrix represents the heat distribution of room one after solving $Au=b$. We can see that the top and bottom values are 15 as required and the left wall is 40 due to a heater. The internal values are 25 and 20 degrees approximately, which match the corresponding values in room 2.
  
          [[40.         15.         15.         15.        ]
          [40.         25.02126925 20.04638878 20.03080229]
@@ -74,6 +81,7 @@ animation can be toggled On/Off.
          [40.         15.         15.         15.        ]]
 
 #### room 2
+Room 2 has 15 degrees on the upper part of the left and lower part of the right wall, as well as 40 degrees on the top due to a heater and 5 degrees because of the window on teh bottom wall. The interior values range from 12 to 26 degrees, with interface values matching those of room 1 and 3.
 
         [[15.         40.         40.         15.        ]
          [15.         25.29881236 26.6707221  20.56578179]
@@ -84,6 +92,7 @@ animation can be toggled On/Off.
          [15.          5.          5.         15.        ]]
 
 #### room 3 
+Room 3 has two regular walls on teh top and bottom with 15 degrees and a heater on the right wall of 40 degrees. The internal temperatures are approximately 24, 20 and 19 degrees. The interface values on the right match those of room 2 as expected.
 
         [[15.         15.         15.         40.        ]
          [20.56578179 19.42146932 24.81841236 40.        ]
@@ -92,7 +101,7 @@ animation can be toggled On/Off.
 
 3. **Task 2:** Is heating in the flat adequate?
 
-The heating looks fairly adequate. The temperature settles at approximately 20 degrees in the flat (very liveable). 
+The heating in the flat should be inspected by each room individually. In room 1 and 3 the temperature moves in the interval from 19 to 25 degrees, which can be considered comfortably warm. However, in the case of room 2, the internal tempeture on the lower end of the room seems to drop below 15 degrees, which is due to the window creating a cold zone. Unless this temperature is tempting for someone, maybe insulating that window could be a good solution. 
 
 3. **Task 3:** Plotted temperature distribution
 
