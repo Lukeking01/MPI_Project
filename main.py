@@ -15,12 +15,12 @@ N_ITERATIONS = 10
 # TODO If Animate is not set to True, then there's no need to waste memory storing all the room states
 # for the iterations. Only the first frame and last frame are needed.
 ANIMATE = True
-CROP = False
-INCLUDE_ROOM4 = True
+CROP = 1
+INCLUDE_ROOM4 = 0
 
 def main():
     rank = get_rank()
-    print(f"DEBUG: rank={rank}", flush=True)
+
     if rank == 0:
         room = create_room1(DX)
     if rank == 1:
