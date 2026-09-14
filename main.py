@@ -27,7 +27,7 @@ def main():
         room = create_room2(DX, include_room4=INCLUDE_ROOM4)
     if rank == 2:
         room = create_room3(DX)
-    if rank == 3:
+    if INCLUDE_ROOM4 and rank == 3:
         room = create_room4(DX)
 
     solution = dirichlet_neumann(
@@ -66,17 +66,12 @@ def main():
             data = [[solution[i],data2[i],data3[i]] for i in range(N_ITERATIONS+1)]
             floorplan_builder=floorplan_main
 
-        plot_temperature(data, floorplan_builder=floorplan_builder, show_animation=True)
-            
-
         if CROP:
-            data = [[solution[i][1:-1,1:-1],data2[i][1:-1,1:-1],data3[i][1:-1,1:-1]] for i in range(N_ITERATIONS+1)]
-        else:
-            data = [[solution[i],data2[i],data3[i]] for i in range(N_ITERATIONS+1)]
+            data = [[room[1:-1,1:-1] for room in rooms] for rooms in data]
 
         if not ANIMATE:
             data = data[1:]
-        plot_temperature(data, floorplan_builder=floorplan_main, show_animation=ANIMATE)
+        plot_temperature(data, floorplan_builder=floorplan_builder, show_animation=ANIMATE)
         
 
     if rank == 1:
