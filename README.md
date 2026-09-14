@@ -26,6 +26,8 @@ animation can be toggled On/Off.
 
 2. **Task 2:** Is heating in the flat accurate?
 
+The heating looks fairly accurate, though the level of detail is limited with dx = 1 / 3.
+
 3. **Task 3:** Plotted temperature distribution
 
 4. **Task 4:** Varying parameters
@@ -94,11 +96,9 @@ was dropped for better visual clarity.
 ## Potential Flaws and Notes for Improvement
 
 ## TODO
-- MPI (Scotts on it) (✓)
-- Make sure code is local to rooms and MPI compatible (✓)
-- Testing
-- init file (Check in the end)
-- additional room
-      - Build room
-- check overall compatibility
-- Fuck around and find out
+
+- Add more unit test files
+- Add Sphinx documentation support
+- Add animation file save support to a constant
+- General code cleanup, organization, and ensure naming convention is more convenient
+- Convert from building room dimensions from dx, to building dx from room dimensions

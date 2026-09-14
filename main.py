@@ -20,6 +20,11 @@ INCLUDE_ROOM4 = True
 
 def main():
     rank = get_rank()
+
+    total_rooms = 3 if not INCLUDE_ROOM4 else 4
+    if rank >= total_rooms:
+        return
+    
     print(f"DEBUG: rank={rank}", flush=True)
     if rank == 0:
         room = create_room1(DX)
