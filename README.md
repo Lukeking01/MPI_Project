@@ -81,6 +81,8 @@ was dropped for better visual clarity.
     - Main iteration for dirichlet neumann cycles (dn_MPI.py).
 - Linn Preuss Jelvez
 - Orsolya Bosáková
+    - Set up of the geometry of the three rooms (geometry.py)
+    - Calculate the initial boundary conditions for the interfaces
 - Scott Gibson
     - Plotting & Floorplan builder functions
     - Visual test file for plots
