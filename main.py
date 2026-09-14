@@ -2,16 +2,18 @@
 ### Placeholder import
 # TODO
 # setup init file for these functions
-from modules.geometry import create_room1, create_room2, create_room3, floorplan_main
+from modules.geometry import create_room1, create_room2, create_room3, floorplan_main, floorplan_addition
 from modules.MPI import send_npdata, recv_npdata, get_rank
 from modules.dn_MPI import dirichlet_neumann
 from modules.plot import plot_temperature
 import numpy as np
 
 
-DX = 1 / 80
+DX = 1 / 20
 OMEGA = 0.8 
 N_ITERATIONS = 10
+# TODO If Animate is not set to True, then there's no need to waste memory storing all the room states
+# for the iterations. Only the first frame and last frame are needed.
 ANIMATE = True
 CROP = False
 
@@ -53,6 +55,9 @@ def main():
             data = [[solution[i][1:-1,1:-1],data2[i][1:-1,1:-1],data3[i][1:-1,1:-1]] for i in range(N_ITERATIONS+1)]
         else:
             data = [[solution[i],data2[i],data3[i]] for i in range(N_ITERATIONS+1)]
+
+        if not ANIMATE:
+            data = data[1:]
         plot_temperature(data, floorplan_builder=floorplan_main, show_animation=ANIMATE)
         
     if rank == 1:
