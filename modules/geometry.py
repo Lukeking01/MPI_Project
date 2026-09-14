@@ -150,8 +150,31 @@ def floorplan_addition(rooms):
     """
     :param rooms: List of 4 rooms, [left, middle, right, small_extension]
     :returns ndarray: Assignment 1 addition floorplan
-
-    TODO
     """
     
-    pass
+    [room_1, room_2, room_3, room_4] = rooms
+    
+    # Assuming that each room has equal width and room_2 is the tallest:
+    max_room_height = room_2.shape[0]
+    room_width = room_1.shape[1]
+
+    # Smallest shape for a box that can fit the full floorplan.
+    floorplan_shape = (max_room_height, 3 * room_width)
+
+    # Start with a blank canvas
+    floorplan = np.full(floorplan_shape, fill_value=np.nan, dtype=np.float64)
+
+    # Create list of (r, c) room offsets
+    room_offsets = [
+        (room_2.shape[0] - room_1.shape[0], 0),
+        (0, room_width),
+        (0, room_width * 2),
+        (room_3.shape[0], room_width * 2),
+    ]
+
+    for room, (r_off, c_off) in zip(rooms, room_offsets):
+        h, w = room.shape
+        # Insert room at the correct offset
+        floorplan[r_off:r_off + h, c_off:c_off + w] = room
+
+    return floorplan
