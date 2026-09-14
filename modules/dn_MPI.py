@@ -49,7 +49,7 @@ def dn_iteration(room, dx, rank):
         # -----------------------------------------
         # 5. Solve Room 3 with Neumann
         # -----------------------------------------
-        flux3 = -1*get_interfaces(room,dx)[1:-1]
+        flux3 = get_interfaces(room,dx)[1:-1]
         room3 = solve_room3(
             room,
             flux3,

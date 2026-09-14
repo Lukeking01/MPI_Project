@@ -9,9 +9,11 @@ from modules.plot import plot_temperature
 import numpy as np
 
 
-DX = 1 / 20
-OMEGA = 0.8
+DX = 1 / 80
+OMEGA = 0.8 
 N_ITERATIONS = 10
+ANIMATE = True
+CROP = False
 
 def main():
     rank = get_rank()
@@ -47,8 +49,11 @@ def main():
         recv_npdata(data2, 1)
         recv_npdata(data3, 2)
 
-        data = [[solution[i],data2[i],data3[i]] for i in range(N_ITERATIONS+1)]
-        plot_temperature(data, floorplan_builder=floorplan_main, show_animation=True)
+        if CROP:
+            data = [[solution[i][1:-1,1:-1],data2[i][1:-1,1:-1],data3[i][1:-1,1:-1]] for i in range(N_ITERATIONS+1)]
+        else:
+            data = [[solution[i],data2[i],data3[i]] for i in range(N_ITERATIONS+1)]
+        plot_temperature(data, floorplan_builder=floorplan_main, show_animation=ANIMATE)
         
     if rank == 1:
         send_npdata(solution,0)
