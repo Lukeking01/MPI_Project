@@ -231,6 +231,17 @@ was dropped for better visual clarity.
 - **mpi.py** - Provide MPI ranks and communication between rooms
 - **plot.py** -	Plot the final temperature distribution
 
+## Creating HTML Documentation
+
+In this project we have Sphinx setup to generate docs on command. To generate docs and view them,
+follow these steps:
+
+1. Change to the \docs directory: `cd docs`
+2. Run the build command: `.\make html`
+3. Wait for the build to finish, the generated html docs should populate the \docs\build folder
+or create one if none existed.
+4. Open the `index.html` file in a server or in your browser to view the output.
+
 ## Collaborator Efforts
 
 - Lukas Nord
@@ -249,8 +260,8 @@ was dropped for better visual clarity.
 
 ## Potential Flaws and Notes for Improvement
 
-## TODO
-
+- Display quantitative analysis of temperature distribution on each room and some metric
+to display comparing all rooms as a whole.
 - Include running file for 4 rooms in usage section
 - Add Sphinx documentation support
 - Add animation file save support to a constant
