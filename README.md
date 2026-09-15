@@ -55,7 +55,7 @@ animation can be toggled On/Off.
          [ 1. -4.  0.  1.]
          [ 1.  0. -3.  1.]
          [ 0.  1.  1. -4.]]
-### b matrices:
+### b vectors:
 
 #### room 1
    >The right hand side vector for room one stores the Dirichlet boundary values combined with the Neumann flux derivatives and stores them as an array.
@@ -73,7 +73,7 @@ animation can be toggled On/Off.
 ### Solved matrices:
 
 #### room 1
-   >This matrix represents the heat distribution of room one after solving $Au=b$. We can see that the top and bottom values are 15 as required and the left wall is 40 due to a heater. The internal values are 25 and 20 degrees approximately, which match the corresponding values in room 2.
+   > This matrix represents the heat distribution of room one after solving $Au=b$. We can see that the top and bottom values are 15 as required and the left wall is 40 due to a heater. The internal values are 25 and 20 degrees approximately, which match the corresponding values in room 2.
  
          [[40.         15.         15.         15.        ]
          [40.         25.02126925 20.04638878 20.03080229]
@@ -81,7 +81,7 @@ animation can be toggled On/Off.
          [40.         15.         15.         15.        ]]
 
 #### room 2
-   >Room 2 has 15 degrees on the upper part of the left and lower part of the right wall, as well as 40 degrees on the top due to a heater and 5 degrees because of the window on teh bottom wall. The interior values range from 12 to 26 degrees, with interface values matching those of room 1 and 3.
+   > Room 2 has 15 degrees on the upper part of the left and lower part of the right wall, as well as 40 degrees on the top due to a heater and 5 degrees because of the window on teh bottom wall. The interior values range from 12 to 26 degrees, with interface values matching those of room 1 and 3.
 
         [[15.         40.         40.         15.        ]
          [15.         25.29881236 26.6707221  20.56578179]
@@ -92,7 +92,7 @@ animation can be toggled On/Off.
          [15.          5.          5.         15.        ]]
 
 #### room 3 
-   >Room 3 has two regular walls on teh top and bottom with 15 degrees and a heater on the right wall of 40 degrees. The internal temperatures are approximately 24, 20 and 19 degrees. The interface values on the right match those of room 2 as expected.
+   > Room 3 has two regular walls on the top and bottom with 15 degrees and a heater on the right wall of 40 degrees. The internal temperatures are approximately 24, 20 and 19 degrees. The interface values on the right match those of room 2 as expected.
 
         [[15.         15.         15.         40.        ]
          [20.56578179 19.42146932 24.81841236 40.        ]
@@ -101,7 +101,7 @@ animation can be toggled On/Off.
 
 3. **Task 2:** Is heating in the flat adequate?
 
-   >The heating in the flat should be inspected by each room individually. In room 1 and 3 the temperature moves in the interval from 19 to 25 degrees, which can be considered comfortably warm. However, in the case of room 2, the internal tempeture on the lower end of the room seems to drop below 15 degrees, which is due to the window creating a cold zone. Unless this temperature is tempting for someone, maybe insulating that window could be a good solution. 
+   > The heating in the flat should be inspected by each room individually. In room 1 and 3 the temperature moves in the interval from 19 to 25 degrees, which can be considered comfortably warm. However, in the case of room 2, the internal tempeture on the lower end of the room seems to drop below 15 degrees, which is due to the window creating a cold zone. Unless this temperature is tempting for someone, maybe insulating that window could be a good solution. 
 
 3. **Task 3:** Plotted temperature distribution
 
@@ -127,9 +127,77 @@ animation can be toggled On/Off.
 
 1. **Task 1:** Dirichlet-Neumann matrices when mesh width dx = 1 / 3
 
-2. **Task 2:** Is heating in the flat adequate?
+### A matrices:
 
-3. **Task 3:** Plotted temperature distribution
+#### room 2
+
+   > The room 2 A matrix looks similar to the one we had in the original part of Project 1. Except for a slight shift of the placement of the -4 and 1 values, due to the interaction with room 4. 
+
+      [[-4.  1.  1.  0.  0.  0.  0.  0.  0.  0.]
+       [ 1. -4.  0.  1.  0.  0.  0.  0.  0.  0.]
+       [ 1.  0. -4.  1.  1.  0.  0.  0.  0.  0.]
+       [ 0.  1.  1. -4.  0.  1.  0.  0.  0.  0.]
+       [ 0.  0.  1.  0. -4.  1.  1.  0.  0.  0.]
+       [ 0.  0.  0.  1.  1. -4.  0.  1.  0.  0.]
+       [ 0.  0.  0.  0.  1.  0. -4.  1.  1.  0.]
+       [ 0.  0.  0.  0.  0.  1.  1. -4.  0.  1.]
+       [ 0.  0.  0.  0.  0.  0.  1.  0. -4.  1.]
+       [ 0.  0.  0.  0.  0.  0.  0.  1.  1. -4.]]
+
+#### room 4
+
+   > Due to the lack of internal points in room 2 in the case dx=1/3, the matrix A is empty and we chose not to display it.
+
+### b vector:
+
+#### room 4
+
+   > For the same reason as for matrix A, the b vector is not displayed.
+
+### Solved matrices:
+
+#### room 1
+
+   > In room 1, we can see that the top and bottom values are 15 as required and the left wall is 40 due to a heater. The internal values are between 25 and 19 degrees approximately, which match the corresponding values in room 2.
+
+      [[40.         15.         15.         15.        ]
+       [40.         25.12852378 20.25187818 19.95861831]
+       [40.         25.26222258 20.92037217 23.16738946]
+       [40.         15.         15.         15.        ]]
+
+#### room 2
+
+   > Room 2 has 15 degrees on the upper part of the left, as well as 40 degrees on the top due to a heater and 5 degrees because of the window on teh bottom wall. The interior values range from 14 to 39 degrees, with interface values matching those of room 1, 3 and 4.
+
+      [[15.         40.         40.         15.        ]
+       [15.         25.39081583 26.77204874 20.56627449]
+       [15.         19.79122022 21.13110875 20.10781142]
+       [15.         17.64295782 17.85335463 15.        ]
+       [19.95885787 17.92725797 17.63935349 14.99999846]
+       [23.1673904  16.46786269 19.77680289 39.9999959 ]
+       [15.          5.          5.         15.        ]]
+
+#### room 3
+
+   > Room 3 has two regular walls on the top and bottom with 15 degrees and a heater on the right wall of 40 degrees. The internal temperatures are approximately 24, 20 and 19 degrees. The interface values on the right match those of room 2 as expected.
+
+      [[15.         15.         15.         40.        ]
+       [20.56657741 19.41209884 24.81494649 40.        ]
+       [20.10812978 19.57583014 24.84769275 40.        ]
+       [15.         15.         15.         15.        ]]
+
+#### room 4
+
+   > Room 4 does not have any internal points to discuss, however the values of the interface between room 2 and 4 match approximately.
+
+      [[15. 15.]
+       [40. 15.]]
+
+3. **Task 2:** Is heating in the flat adequate?
+
+   > The heating in the flat should be inspected by each room individually. In room 1 and 3 the temperature moves in the interval from 19 to 25 degrees, which can be considered comfortably warm. However, in the case of room 2, the internal tempeture on the lower end of the room seems to drop below 15 degrees to 14 degrees, which is due to the window creating a cold zone. Additionally, we have almost 40 degrees on the interface with room 4, making it rather warm in that area. The best idea would be to isolate the window in room 2 and turn down the heating in room 4 for a more comfortable environment.
+
+5. **Task 3:** Plotted temperature distribution
 
     > Plot with a mesh width $dx = 1 / 100$:
 
