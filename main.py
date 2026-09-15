@@ -1,23 +1,5 @@
-
-### Placeholder import
-# TODO
-# setup init file for these functions
+# Import all modules and constants
 from modules import *
-#from modules.geometry import create_room1, create_room2, create_room3, create_room4, floorplan_main, floorplan_addition
-#from modules.MPI import send_npdata, recv_npdata, get_rank
-#from modules.dn_MPI import dirichlet_neumann
-#from modules.plot import plot_temperature
-#import numpy as np
-#from modules.constants import *
-
-#DX = 1 / 3
-#OMEGA = 0.8 
-#N_ITERATIONS = 10
-# TODO If Animate is not set to True, then there's no need to waste memory storing all the room states
-# for the iterations. Only the first frame and last frame are needed.
-#ANIMATE = True
-#CROP = False
-#INCLUDE_ROOM4 = False
 
 def main():
     rank = get_rank()
