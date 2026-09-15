@@ -1,6 +1,8 @@
 import numpy as np
 from .MPI import send_npdata, recv_npdata, get_rank
-### apartment layout
+from .constants import HEATER_TEMP, WINDOW_TEMP, WALL_TEMP, FLOOR_TEMP
+
+### Apartment layout
 
 def create_room1(dx):
     '''Initialize room 1 (1x1)
@@ -14,11 +16,11 @@ def create_room1(dx):
     x = int(1.0/dx) + 1
     y = int(1.0/dx) + 1
 
-    U1 = np.zeros((y, x))
+    U1 = np.zeros((y, x)) + FLOOR_TEMP
 
-    U1[0, :] = 15
-    U1[-1, :] = 15
-    U1[:, 0] = 40
+    U1[0, :] = WALL_TEMP
+    U1[-1, :] = WALL_TEMP
+    U1[:, 0] = HEATER_TEMP
 
     return U1
 
@@ -35,14 +37,14 @@ def create_room2(dx, include_room4=False):
     x = int(1.0/dx) + 1
     y = int(2.0/dx) + 1
 
-    U2 = np.zeros((y, x))
+    U2 = np.zeros((y, x)) + FLOOR_TEMP
 
     middle = int(1.0/dx)
 
-    U2[0, :] = 40
-    U2[:middle, 0] = 15
-    U2[-1, :] = 5
-    U2[middle + 1:, -1] = 15
+    U2[0, :] = HEATER_TEMP
+    U2[:middle, 0] = WALL_TEMP
+    U2[-1, :] = WINDOW_TEMP
+    U2[middle + 1:, -1] = WALL_TEMP
 
     if include_room4:
         half = int(0.5/dx)+1
@@ -64,11 +66,11 @@ def create_room3(dx):
     x = int(1.0/dx) + 1
     y = int(1.0/dx) + 1
 
-    U3 = np.zeros((y, x))
+    U3 = np.zeros((y, x)) + FLOOR_TEMP
 
-    U3[0, :] = 15
-    U3[:, -1] = 40
-    U3[-1, :] = 15
+    U3[0, :] = WALL_TEMP
+    U3[:, -1] = HEATER_TEMP
+    U3[-1, :] = WALL_TEMP
 
     return U3
 
@@ -158,11 +160,11 @@ def create_room4(dx):
     x= int(0.5/dx) +1
     y= int (0.5/dx) +1
 
-    U4 = np.zeros((x,y))
+    U4 = np.zeros((x,y)) + FLOOR_TEMP
 
-    U4[-1, :]=40
-    U4[:, -1]=15
-    U4[0,:]=15
+    U4[-1, :]=HEATER_TEMP
+    U4[:, -1]=WALL_TEMP
+    U4[0,:]=WALL_TEMP
     return U4
 
 def get_interface_room4(U,dx):
