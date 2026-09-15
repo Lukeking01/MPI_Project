@@ -7,7 +7,7 @@ OMEGA = 0.8
 # Number of iterations to run.
 N_ITERATIONS = 10
 # Set to True to include the extension room, otherwise just computes the three-room floorplan.
-INCLUDE_ROOM4 = False
+INCLUDE_ROOM4 = True
 
 ### Room and Boundary Initial Temperatures ###
 
