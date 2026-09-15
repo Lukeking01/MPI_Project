@@ -6,11 +6,14 @@ from modules import *
 def main():
     rank = get_rank()
 
+    # Early return for all threads that exceed the number of rooms
     total_rooms = 3 if not INCLUDE_ROOM4 else 4
     if rank >= total_rooms:
         return
     
     print(f"DEBUG: rank={rank}", flush=True)
+
+    # Initialize room states
     if rank == 0:
         room = create_room1(DX)
     if rank == 1:
@@ -20,6 +23,7 @@ def main():
     if INCLUDE_ROOM4 and rank == 3:
         room = create_room4(DX)
 
+    # Run simulation with all params
     solution = dirichlet_neumann(
         room,
         dx = DX,
@@ -28,51 +32,55 @@ def main():
         omega = OMEGA,
         include_room4=INCLUDE_ROOM4
         )
+
+    # For all ranks other than 0, send output data to rank 0 for display
+    if rank == 1 or rank == 2 or rank == 3:
+        send_npdata(solution, 0)
+    
     if rank == 0:
-        
+        # Note, all these rooms are being used for is to get the dimensions of each room,
+        # that can certainly be made more efficient by not building the full rooms.
         room2 = create_room2(DX, include_room4=INCLUDE_ROOM4)
         room3 = create_room3(DX)
+
+        sol_frame_count = solution.shape[0]
+
+        # Set up empty arrays to receive simulation data from other ranks
         data2 = np.empty(
-            (solution.shape[0], *room2.shape),
+            (sol_frame_count, *room2.shape),
             dtype=float
         )
         data3 = np.empty(
-            (solution.shape[0], *room3.shape),
+            (sol_frame_count, *room3.shape),
             dtype=float
         )
-                
 
         recv_npdata(data2, 1)
         recv_npdata(data3, 2)
 
-
-        if INCLUDE_ROOM4:
-            room4=create_room4(DX)
-            data4=np.empty((solution.shape[0], *room4.shape), dtype=float)
-            recv_npdata(data4,3)
-            data=[[solution[i], data2[i], data3[i], data4[i]] for i in range(solution.shape[0])]
-            floorplan_builder = floorplan_addition
-        else:
+        # Collect all rooms into a single "data" array and choose custom floorplan builder function 
+        # depending on if the addition is included.
+        if not INCLUDE_ROOM4:
             data = [[solution[i],data2[i],data3[i]] for i in range(solution.shape[0])]
             floorplan_builder=floorplan_main
+        else:
+            room4=create_room4(DX)
+            data4=np.empty((sol_frame_count, *room4.shape), dtype=float)
+            recv_npdata(data4, 3)
+            data=[[solution[i], data2[i], data3[i], data4[i]] for i in range(solution.shape[0])]
+            floorplan_builder = floorplan_addition
 
+        # Crop room boundary conditions if necessary
         if CROP:
             data = [[room[1:-1,1:-1] for room in rooms] for rooms in data]
+        # Omit the first starting condition frame when animate is set to False, shows the initial state 
+        # as the state after a single iteration, which looks a bit nicer than the starting conditions.
         if not ANIMATE:
             data = data[1:]
+
+        # Plot the temperature distribution
         plot_temperature(data, floorplan_builder=floorplan_builder, show_animation=ANIMATE)
-        
 
-    if rank == 1:
-        send_npdata(solution,0)
-        
-    if rank == 2:
-        send_npdata(solution,0)
-
-    if rank == 3:
-        send_npdata(solution ,0)
-    
-    
 
 
 if __name__ == "__main__":

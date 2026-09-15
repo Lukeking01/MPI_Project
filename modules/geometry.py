@@ -1,6 +1,8 @@
 import numpy as np
 from .MPI import send_npdata, recv_npdata, get_rank
-### apartment layout
+from .constants import HEATER_TEMP, WINDOW_TEMP, WALL_TEMP, FLOOR_TEMP
+
+### ROOM BUILDERS ###
 
 def create_room1(dx):
     '''Initialize room 1 (1x1)
@@ -14,11 +16,11 @@ def create_room1(dx):
     x = int(1.0/dx) + 1
     y = int(1.0/dx) + 1
 
-    U1 = np.zeros((y, x))
+    U1 = np.zeros((y, x)) + FLOOR_TEMP
 
-    U1[0, :] = 15
-    U1[-1, :] = 15
-    U1[:, 0] = 40
+    U1[0, :] = WALL_TEMP
+    U1[-1, :] = WALL_TEMP
+    U1[:, 0] = HEATER_TEMP
 
     return U1
 
@@ -35,20 +37,20 @@ def create_room2(dx, include_room4=False):
     x = int(1.0/dx) + 1
     y = int(2.0/dx) + 1
 
-    U2 = np.zeros((y, x))
+    U2 = np.zeros((y, x)) + FLOOR_TEMP
 
     middle = int(1.0/dx)
 
-    U2[0, :] = 40
-    U2[:middle, 0] = 15
-    U2[-1, :] = 5
-    U2[middle + 1:, -1] = 15
+    U2[0, :] = HEATER_TEMP
+    U2[:middle, 0] = WALL_TEMP
+    U2[-1, :] = WINDOW_TEMP
+    U2[middle + 1:, -1] = WALL_TEMP
 
     if include_room4:
         half = int(0.5/dx)+1
         room4_start=middle+1
         room4_end=room4_start+half
-        U2[room4_start:room4_end, -1]=0
+        U2[room4_start:room4_end, -1]=FLOOR_TEMP
 
     return U2
 
@@ -64,13 +66,34 @@ def create_room3(dx):
     x = int(1.0/dx) + 1
     y = int(1.0/dx) + 1
 
-    U3 = np.zeros((y, x))
+    U3 = np.zeros((y, x)) + FLOOR_TEMP
 
-    U3[0, :] = 15
-    U3[:, -1] = 40
-    U3[-1, :] = 15
+    U3[0, :] = WALL_TEMP
+    U3[:, -1] = HEATER_TEMP
+    U3[-1, :] = WALL_TEMP
 
     return U3
+
+def create_room4(dx):
+    '''Initialize room 4 (1/2x1/2)
+    Parameters: 
+    dx : float
+        Step size for the grid.
+    Returns:
+    U4 : ndarray
+        (ny, nx) array with the initial temperatures at the boundary'''
+
+    x= int(0.5/dx) +1
+    y= int (0.5/dx) +1
+
+    U4 = np.zeros((x,y)) + FLOOR_TEMP
+
+    U4[-1, :]=HEATER_TEMP
+    U4[:, -1]=WALL_TEMP
+    U4[0,:]=WALL_TEMP
+    return U4
+
+### BOUNDARY CONDITIONS ###
 
 def get_interfaces(U, dx):
     '''Boundary data set up with MPI communication.
@@ -81,7 +104,7 @@ def get_interfaces(U, dx):
     U : ndarray
         Temperature grid of the room.
     dx : float
-        Step size for teh grid.
+        Step size for the grid.
     Returns:
     ndarray or tuple
         rank 1 - updated room 2 with Dirichlet boundaries (walls).
@@ -122,6 +145,51 @@ def get_interfaces(U, dx):
         recv_npdata(n2, source=1) #recieve data from room 2
         return n2
 
+def get_interface_room4(U,dx):
+    '''Boundary data between rooms 2 and 4 set up with MPI communication.
+
+    --- REPLACE THE FOLLOWING ---
+    Dirichlet-Neumann set up:
+        Dirichlet - rank 3 sends interface temp values to rank 1.
+        Neumann - rank 1 calculates the flux derivative for the interface and sends them to rank 3.
+    Parameter:
+    U : ndarray
+        Temperature grid of the room.
+    dx : float
+        Step size for the grid.
+    Returns:
+    ndarray or tuple
+        rank 1 - updated room 2 with Dirichlet boundary (walls).
+        rank 0 - returns n3, the Neumann heat flux array at interface 4.
+        rank 3 - ...'''
+    rank = get_rank()
+    middle = int(1.0/dx)
+    half = int(0.5/dx)+1
+    room4_start = middle+1
+    room4_end=room4_start+half
+
+     #Dirichlet BC
+    if rank == 3:
+        ts = np.ascontiguousarray(U[:,0], dtype=np.float64)
+        send_npdata(ts, dest=1)
+    elif rank ==1:
+        d4_recv = np.zeros(room4_end-room4_start, dtype=np.float64)
+        recv_npdata(d4_recv, source=3)
+        U[room4_start:room4_end, -1] = d4_recv
+        
+    #Neumann BC
+    if rank == 1:
+        n4 = np.ascontiguousarray((U[room4_start:room4_end,-1]-U[room4_start:room4_end, -2]),
+                                   dtype=np.float64)
+        send_npdata(n4,dest=3)
+        return U
+    elif rank == 3:
+        n4 = np.zeros(room4_end-room4_start, dtype=np.float64)
+        recv_npdata(n4, source=1)
+        return -n4
+
+### FLOORPLAN BUILDERS ###
+
 def floorplan_main(rooms):
     """
     :param rooms: List of 3 rooms, [left, middle, right]
@@ -152,47 +220,6 @@ def floorplan_main(rooms):
         floorplan[r_off:r_off + h, c_off:c_off + w] = room
 
     return floorplan
-
-
-def create_room4(dx):
-    x= int(0.5/dx) +1
-    y= int (0.5/dx) +1
-
-    U4 = np.zeros((x,y))
-
-    U4[-1, :]=40
-    U4[:, -1]=15
-    U4[0,:]=15
-    return U4
-
-def get_interface_room4(U,dx):
-    """ Boundary between room2 and room4. 
-    """
-    rank = get_rank()
-    middle = int(1.0/dx)
-    half = int(0.5/dx)+1
-    room4_start = middle+1
-    room4_end=room4_start+half
-
-     #Dirichlet BC
-    if rank == 3:
-        ts = np.ascontiguousarray(U[:,0], dtype=np.float64)
-        send_npdata(ts, dest=1)
-    elif rank ==1:
-        d4_recv = np.zeros(room4_end-room4_start, dtype=np.float64)
-        recv_npdata(d4_recv, source=3)
-        U[room4_start:room4_end, -1] = d4_recv
-        
-    #Neumann BC
-    if rank == 1:
-        n4 = np.ascontiguousarray((U[room4_start:room4_end,-1]-U[room4_start:room4_end, -2]) * dx,
-                                   dtype=np.float64)
-        send_npdata(n4,dest=3)
-        return U
-    elif rank == 3:
-        n4 = np.zeros(room4_end-room4_start, dtype=np.float64)
-        recv_npdata(n4, source=1)
-        return -n4
 
 def floorplan_addition(rooms):
     """
