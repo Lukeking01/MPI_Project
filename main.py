@@ -1,3 +1,5 @@
+import numpy as np
+
 # Import all modules and constants
 from modules import *
 
