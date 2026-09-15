@@ -249,8 +249,8 @@ was dropped for better visual clarity.
 
 ## Potential Flaws and Notes for Improvement
 
-## TODO
-
+- Display quantitative analysis of temperature distribution on each room and some metric
+to display comparing all rooms as a whole.
 - Include running file for 4 rooms in usage section
 - Add Sphinx documentation support
 - Add animation file save support to a constant
