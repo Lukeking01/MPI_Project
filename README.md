@@ -9,16 +9,18 @@ to divide the initial floorplan into multiple rooms which can be solved simultan
 To run the main file, you must have OpenMPI installed, and run the following:
 
 ```
-mpiexec -n 3 python main.py
+mpiexec -n 4 python main.py
 ```
 
 This runs main.py using mpiexec which should spin up three threads to handle
 the computation. After a short delay, you should see a plot visualizing an
 animation through the iterations of the program, and the final state it ended on.
 
-Several aspects related to the plotting can be configured in main.py, for instance
-the cmap can be changed to change the color mapping in the heatmaps, and the
-animation can be toggled On/Off.
+Several aspects related to the execution and plotting can be configured in 
+`/modules/constants.py`, for instance the cmap can be changed to change the color 
+mapping in the heatmaps, and the animation can be toggled On/Off. Additionally you 
+can control if the extension room is added, and if the boundary conditions should be 
+displayed in the final plot.
 
 ## Assignment Tasks
 
