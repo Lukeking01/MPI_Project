@@ -1,7 +1,7 @@
 
-DX = 1 / 3
+DX = 1 / 30
 OMEGA = 0.8 
 N_ITERATIONS = 10
 ANIMATE = True
 CROP = False
-INCLUDE_ROOM4 = False
+INCLUDE_ROOM4 = 1
