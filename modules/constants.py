@@ -12,6 +12,6 @@ INCLUDE_ROOM4 = False
 ### Animation/Plotting Params ###
 
 # Set to true to save all iterations and animate from the initial state to the end state.
-ANIMATE = True
+ANIMATE = False
 # Set to True to crop out the boundary conditions, so they won't show in the plot.
-CROP = False
+CROP = True

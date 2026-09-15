@@ -143,7 +143,6 @@ def dirichlet_neumann(room, dx, rank, iterations=10, omega=0.8, include_room4=Fa
                 )
     
     for k in range(iterations):
-        print("Starting iteration:", k + 1)
         old_room = room.copy()
 
         new_room = dn_iteration(
@@ -161,7 +160,10 @@ def dirichlet_neumann(room, dx, rank, iterations=10, omega=0.8, include_room4=Fa
             states.append(
                 room.copy()
             )
-        print(f"Iteration {k +1 } finished")
+
+        # Only print once to console
+        if rank == 0:
+            print(f"Iteration {k+1 } finished")
     return np.array(states)
 
 def relax(u_new, u_old, omega):
