@@ -1,5 +1,5 @@
 
-DX = 1 / 30
+DX = 1 / 200
 OMEGA = 0.8 
 N_ITERATIONS = 10
 ANIMATE = True

@@ -7,7 +7,7 @@ grid for both pure Dirichlet problems and mixed Dirichlet-Neumann
 problems that arise in the Dirichlet-Neumann domain-decomposition
 scheme.
 """
-
+from scipy.sparse import lil_matrix
 import numpy as np
 def build_internal_matrix(room):
     """
@@ -37,7 +37,7 @@ def build_internal_matrix(room):
     ny -= 2
     nx -= 2
 
-    A = np.zeros((nx * ny, nx * ny))
+    A = lil_matrix((nx * ny, nx * ny))
 
     for j in range(ny):
         for i in range(nx):
