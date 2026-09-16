@@ -9,6 +9,7 @@ scheme.
 """
 from scipy.sparse import lil_matrix
 import numpy as np
+
 def build_internal_matrix(room):
     """
     Build the finite-difference matrix for the interior unknowns.

@@ -95,7 +95,13 @@ def main():
         log_profile(total_time)
 
         # Plot the temperature distribution
-        plot_temperature(data, floorplan_builder=floorplan_builder, show_animation=ANIMATE)
+        plot_temperature(
+            data, 
+            floorplan_builder=floorplan_builder, 
+            show_animation=ANIMATE,
+            **PLOT_PARAMS,
+            animation_params=DEFAULT_ANIMATION_PARAMS,
+        )
 
 
 
