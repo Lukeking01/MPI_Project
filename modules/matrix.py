@@ -30,7 +30,7 @@ def build_internal_matrix(room):
     Returns
     -------
     ndarray
-        Dense matrix of shape ``((nx*ny), (nx*ny))`` where
+        Sparse matrix of shape ``((nx*ny), (nx*ny))`` where
         ``nx = room.shape[1]-2`` and ``ny = room.shape[0]-2``.
     """
     ny, nx = room.shape

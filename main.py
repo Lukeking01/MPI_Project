@@ -1,4 +1,5 @@
 import numpy as np
+import time
 
 # Import all modules and constants
 from modules import *
@@ -6,13 +7,14 @@ from modules import *
 def main():
     rank = get_rank()
 
+    # Track starting time to display the total runtime for this simulation.
+    start_time = time.time()
+
     # Early return for all threads that exceed the number of rooms
     total_rooms = 3 if not INCLUDE_ROOM4 else 4
     if rank >= total_rooms:
         return
     
-    print(f"DEBUG: rank={rank}", flush=True)
-
     # Initialize room states
     if rank == 0:
         room = create_room1(DX)
@@ -77,6 +79,20 @@ def main():
         # as the state after a single iteration, which looks a bit nicer than the starting conditions.
         if not ANIMATE:
             data = data[1:]
+
+        def log_profile(compute_time):
+            """
+            Logs data about the simulation params, timings, and potentially some numerical data 
+            about the results.
+            TODO
+
+            :param compute_time: The total time in seconds for computing the simulation, not
+            including plotting.
+            """
+            pass
+
+        total_time = time.time() - start_time
+        log_profile(total_time)
 
         # Plot the temperature distribution
         plot_temperature(data, floorplan_builder=floorplan_builder, show_animation=ANIMATE)
