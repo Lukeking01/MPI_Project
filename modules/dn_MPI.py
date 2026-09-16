@@ -163,7 +163,7 @@ def dirichlet_neumann(room, dx, rank, iterations=10, omega=0.8, include_room4=Fa
 
         # Only print once to console
         if rank == 0:
-            print(f"Iteration {k+1 } finished")
+            print(f"Iteration {k+1 } finished", flush=True)
     return np.array(states)
 
 def relax(u_new, u_old, omega):
