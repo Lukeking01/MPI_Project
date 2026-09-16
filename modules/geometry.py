@@ -131,8 +131,8 @@ def get_interfaces(U, dx):
     #Neumann boundary conditions
     if rank == 1:
         #calculate the heat loss rate
-        n2 = np.ascontiguousarray((U[:middle + 1, 1] - U[:middle + 1, 0]) * dx, dtype = np.float64)
-        n1 = np.ascontiguousarray((U[middle:, -1] - U[middle:, -2]) * dx, dtype = np.float64)
+        n2 = np.ascontiguousarray((U[:middle + 1, 1] - U[:middle + 1, 0]), dtype = np.float64)
+        n1 = np.ascontiguousarray((U[middle:, -1] - U[middle:, -2]), dtype = np.float64)
         send_npdata(n1, dest=0) #sending heat values from room 1 to room 3
         send_npdata(n2, dest=2)
         return U
