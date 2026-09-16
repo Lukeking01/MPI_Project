@@ -9,16 +9,18 @@ to divide the initial floorplan into multiple rooms which can be solved simultan
 To run the main file, you must have OpenMPI installed, and run the following:
 
 ```
-mpiexec -n 3 python main.py
+mpiexec -n 4 python main.py
 ```
 
 This runs main.py using mpiexec which should spin up three threads to handle
 the computation. After a short delay, you should see a plot visualizing an
 animation through the iterations of the program, and the final state it ended on.
 
-Several aspects related to the plotting can be configured in main.py, for instance
-the cmap can be changed to change the color mapping in the heatmaps, and the
-animation can be toggled On/Off.
+Several aspects related to the execution and plotting can be configured in 
+`/modules/constants.py`, for instance the cmap can be changed to change the color 
+mapping in the heatmaps, and the animation can be toggled On/Off. Additionally you 
+can control if the extension room is added, and if the boundary conditions should be 
+displayed in the final plot.
 
 ## Assignment Tasks
 
@@ -229,6 +231,17 @@ was dropped for better visual clarity.
 - **mpi.py** - Provide MPI ranks and communication between rooms
 - **plot.py** -	Plot the final temperature distribution
 
+## Creating HTML Documentation
+
+In this project we have Sphinx setup to generate docs on command. To generate docs and view them,
+follow these steps:
+
+1. Change to the \docs directory: `cd docs`
+2. Run the build command: `.\make html`
+3. Wait for the build to finish, the generated html docs should populate the \docs\build folder
+or create one if none existed.
+4. Open the `index.html` file in a server or in your browser to view the output.
+
 ## Collaborator Efforts
 
 - Lukas Nord
@@ -247,8 +260,8 @@ was dropped for better visual clarity.
 
 ## Potential Flaws and Notes for Improvement
 
-## TODO
-
+- Display quantitative analysis of temperature distribution on each room and some metric
+to display comparing all rooms as a whole.
 - Include running file for 4 rooms in usage section
 - Add Sphinx documentation support
 - Add animation file save support to a constant
