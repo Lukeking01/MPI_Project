@@ -26,9 +26,9 @@ CROP = True
 # Keyword args to configure the plotting functionality, should be compatible with
 # `plot_temperature()`
 PLOT_PARAMS = { # Default params
-    "cmap": "inferno", # Chosen color map scheme
-    "norm_min": 0, # Normalizes 0 to be the coldest value
-    "norm_max": 40, # Normalizes 40 to be the hottest value
+    "cmap": "inferno",  # Chosen color map scheme
+    "norm_min": 0,      # Normalizes 0 to be the coldest value
+    "norm_max": 40,     # Normalizes 40 to be the hottest value
 }
 
 # Visual change to heat spreading through water
@@ -47,4 +47,14 @@ PLOT_PARAMS_ICE = {
 
 # Keyword args to configure the animation functionality, should be compatible with
 # `matplotlib.animation.FuncAnimation()`
+DEFAULT_ANIMATION_PARAMS = {
+    "interval": 500,         # (ms) delay between frames
+    "repeat_delay": 2000,   # (ms) delay before restarting animation
+    "repeat": True,         # Set to true to loop the animation
+}
 
+ANIMATION_PARAMS = {
+    "interval": 80,
+    "repeat_delay": 2000,
+    "repeat": True,
+}

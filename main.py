@@ -99,7 +99,8 @@ def main():
             data, 
             floorplan_builder=floorplan_builder, 
             show_animation=ANIMATE,
-            **PLOT_PARAMS
+            **PLOT_PARAMS,
+            animation_params=DEFAULT_ANIMATION_PARAMS,
         )
 
 

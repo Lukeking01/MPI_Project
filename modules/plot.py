@@ -4,6 +4,8 @@ import matplotlib.colorizer as mcolorizer
 import matplotlib.colors as mcolors
 import matplotlib.animation as animation
 
+from .constants import DEFAULT_ANIMATION_PARAMS
+
 def cleanup_ax(ax):
     """
     Cleans up the axes by removing tick marks, and removing the borders.
@@ -62,6 +64,7 @@ def plot_temperature(
         norm_min = 0,
         norm_max = 40,
         cmap = "inferno",
+        animation_params = DEFAULT_ANIMATION_PARAMS,
     ):
     """
     Accepts a list of room state snapshots, and renders them in a series of heatmaps. 
@@ -77,6 +80,7 @@ def plot_temperature(
     :param norm_min: Minimum expected value to set to the "coolest" color.
     :param norm_max: Maximum expected value to set to the "hottest" color.
     :param cmap: Custom cmap color set to use in the visualization. Some available ones that look nice are: "inferno", "viridis", "magma", "plasma", "cividis", "ocean".
+    :param animation_params: Custom kwargs to pass into the FuncAnimation call.
     
     :returns None:
 
@@ -133,11 +137,9 @@ def plot_temperature(
                 fig,
                 update,
                 frames=plot_data["data"],
-                interval=700, # Delay in (ms)
-                repeat=True,
-                repeat_delay=2000,
                 # blit=False, # Set to true if more efficient rendering is desired, but note that an
                               # init_func may be required to draw the first frame to a non-white background.
+                **animation_params,
             )
             images.append(anim)
 
