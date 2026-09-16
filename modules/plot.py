@@ -83,13 +83,6 @@ def plot_temperature(
     :param animation_params: Custom kwargs to pass into the FuncAnimation call.
     
     :returns None:
-
-    ---
-
-    TODO: Room states will be sent to this method in the form of a list of rooms. So "room_states"
-            will be a list of a list of individual room states, we need to convert that to a list
-            of glued room states before sending that data through to setup_plot_data().
-    TODO: Certain theming and timing vars should be moved to parameters with reasonable defaults.
     """
 
     # Setup subplots.
