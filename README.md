@@ -224,12 +224,16 @@ was dropped for better visual clarity.
 ## Project Files
 
 - **main.py** -	Project entrypoint
-- **geometry.py** -	Defines rooms, their interfaces, and floorplan builders for plotting
-- **matrix.py** - Construct the finite-difference matrices
-- **room_solver.py** - Solve one room with given boundary conditions
+
+- **__init__.py** - Modules entrypoint, collects all internal dependencies
+- **constants.py** - Defines customization for simulation params
 - **dn_MPI.py** - Implement the Dirichlet-Neumann iteration and relaxation
-- **mpi.py** - Provide MPI ranks and communication between rooms
-- **plot.py** -	Plot the final temperature distribution
+- **geometry.py** -	Defines rooms, their interfaces, and floorplan builders for plotting
+- **iteration.py** - Extension of the room_solver
+- **room_solver.py** - Solve one room with given boundary conditions
+- **matrix.py** - Construct the finite-difference matrices (LHS, RHS)
+- **MPI.py** - Provide MPI ranks and communication between rooms
+- **plot.py** - Plot the final temperature distribution
 
 ## Creating HTML Documentation
 
@@ -262,8 +266,5 @@ or create one if none existed.
 
 - Display quantitative analysis of temperature distribution on each room and some metric
 to display comparing all rooms as a whole.
-- Include running file for 4 rooms in usage section
-- Add Sphinx documentation support
-- Add animation file save support to a constant
-- General code cleanup, organization, and ensure naming convention is more convenient
 - Convert from building room dimensions from dx, to building dx from room dimensions
+- Add animation file save support to a constant
