@@ -13,7 +13,7 @@ from .iteration import solve_room1, solve_room2, solve_room3, solve_room4
 from .MPI import send_npdata, recv_npdata
 from .constants import *
 
-def dn_iteration(room, dx, rank, include_room4=False):
+def dn_iteration(room, n, rank, include_room4=False):
     """
     Perform a single Dirichlet-Neumann iteration for the room belonging to
     the given MPI rank.
@@ -43,20 +43,17 @@ def dn_iteration(room, dx, rank, include_room4=False):
     ndarray
         Updated temperature field of the local room after one iteration.
     """
-    
-    nx = room.shape[1] - 2
-    ny = room.shape[0] - 2
 
-    middle = int(1.0/dx)
-    half = int(0.5/dx) + 1
-    room4_start = middle + 1
+    middle = n
+    half = int(n/2)
+    room4_start = middle
     room4_end = room4_start + half
 
     if rank == 1:
         # -----------------------------------------
         # 1. Update Room 2's interface temperatures and send fluxes
         # -----------------------------------------
-        room = get_interfaces(room,dx)
+        room = get_interfaces(room,n)
         # -----------------------------------------
         # 2. Solve Room 2 with Dirichlet conditions
         # -----------------------------------------
@@ -76,7 +73,7 @@ def dn_iteration(room, dx, rank, include_room4=False):
         room1 = solve_room1(
             room,
             flux1,
-            nx,
+            nx+1,
             ny,
             dx
         )
@@ -90,14 +87,14 @@ def dn_iteration(room, dx, rank, include_room4=False):
         room3 = solve_room3(
             room,
             flux3,
-            nx,
+            nx+1,
             ny,
             dx
         )
         return room3
     if rank == 3:
         flux4 = -1*get_interface_room4(room,dx)[1:-1]
-        room4 = solve_room4(room, flux4, nx, ny, dx)
+        room4 = solve_room4(room, flux4, nx+1, ny, dx)
         
         return room4
 

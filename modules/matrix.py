@@ -9,8 +9,9 @@ scheme.
 """
 from scipy.sparse import lil_matrix
 import numpy as np
+from modules.constants import *
 
-def build_internal_matrix(room):
+def build_internal_matrix(room,nx,ny):
     """
     Build the finite-difference matrix for the interior unknowns.
 
@@ -34,10 +35,8 @@ def build_internal_matrix(room):
         Sparse matrix of shape ``((nx*ny), (nx*ny))`` where
         ``nx = room.shape[1]-2`` and ``ny = room.shape[0]-2``.
     """
-    ny, nx = room.shape
-    ny -= 2
     nx -= 2
-
+    ny -= 2
     A = lil_matrix((nx * ny, nx * ny))
 
     for j in range(ny):
@@ -141,17 +140,18 @@ def build_matrix_neumann_right(room):
         Modified dense matrix of shape ``((nx*ny), (nx*ny))``.
     """
     ny, nx = room.shape
-    ny -= 2
-    nx -= 2
 
-    A = build_internal_matrix(room)
-
-    for j in range(ny):
-
-        # Last interior point in each row
-        p = j * nx + (nx - 1)
-
-        A[p, p] = -3
+    A = build_internal_matrix(room,ny,nx+1)
+    for j in range(ny-2):
+        for i in range(nx-1):
+    
+                index = j * (nx-1) + i
+    
+                # Center
+                if i == nx-2:
+                    A[index, index] = -3
+                    if index != (ny-2)*(nx-1)-1:
+                        A[index, index + 1] = 0
 
     return A
 
@@ -181,7 +181,7 @@ def build_rhs_neumann_right(room, flux):
     """
     ny, nx = room.shape
     ny -= 2
-    nx -= 2
+    nx -= 1
 
     dx = 1 / (nx + 1)
 
@@ -194,15 +194,15 @@ def build_rhs_neumann_right(room, flux):
 
             # Left heater
             if i == 0:
-                b[p] -= room[j + 1, 0]
+                b[p] -= HEATER_TEMP
 
             # Bottom wall
             if j == 0:
-                b[p] -= room[0, i + 1]
+                b[p] -= WALL_TEMP
 
             # Top wall
             if j == ny - 1:
-                b[p] -= room[ny + 1, i + 1]
+                b[p] -= WALL_TEMP
 
             # Right Neumann boundary
             if i == nx - 1:
@@ -229,16 +229,19 @@ def build_matrix_neumann_left(room):
         Modified dense matrix of shape ``((nx*ny), (nx*ny))``.
     """
     ny, nx = room.shape
-    ny -= 2
-    nx -= 2
-    A = build_internal_matrix(room)
+    A = build_internal_matrix(room,ny,nx+1)
 
-    for j in range(ny):
-        p = j * nx
-
-        # Point next to left Neumann boundary
-        A[p, p] = -3
-
+    for j in range(ny-2):
+            for i in range(nx-1):
+    
+                index = j * (nx-1) + i
+    
+                # Center
+                if i == 0:
+                    A[index, index] = -3
+                    if index != 0:
+                        A[index, index - 1] = 0
+    
     return A
 
 
@@ -267,7 +270,7 @@ def build_rhs_neumann_left(room, flux):
     """
     ny, nx = room.shape
     ny -= 2
-    nx -= 2
+    nx -= 1
     dx = 1 / (nx + 1)
     b = np.zeros(nx * ny)
 
@@ -278,15 +281,15 @@ def build_rhs_neumann_left(room, flux):
 
             # Right heater
             if i == nx - 1:
-                b[p] -= room[j + 1, nx + 1]
+                b[p] -= HEATER_TEMP
 
             # Bottom wall
             if j == 0:
-                b[p] -= room[0, i + 1]
+                b[p] -= WALL_TEMP
 
             # Top wall
             if j == ny - 1:
-                b[p] -= room[ny + 1, i + 1]
+                b[p] -= WALL_TEMP
 
             # Left Neumann
             if i == 0:

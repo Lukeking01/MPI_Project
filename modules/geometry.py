@@ -4,7 +4,7 @@ from .constants import HEATER_TEMP, WINDOW_TEMP, WALL_TEMP, FLOOR_TEMP
 
 ### ROOM BUILDERS ###
 
-def create_room1(dx):
+def create_room1(n):
     '''Initialize room 1 (1x1)
     Parameters: 
     dx : float
@@ -13,10 +13,9 @@ def create_room1(dx):
     U1 : ndarray
         (ny, nx) array with the initial temperatures at the boundary'''
     
-    x = int(1.0/dx) + 1
-    y = int(1.0/dx) + 1
+    dx = int(1.0/n)
 
-    U1 = np.zeros((y, x)) + FLOOR_TEMP
+    U1 = np.zeros((n, n)) + FLOOR_TEMP
 
     U1[0, :] = WALL_TEMP
     U1[-1, :] = WALL_TEMP
@@ -24,7 +23,7 @@ def create_room1(dx):
 
     return U1
 
-def create_room2(dx, include_room4=False):
+def create_room2(n, include_room4=False):
     '''Initialize room 2 (1x2)
     Parameters: 
     dx : float
@@ -34,17 +33,17 @@ def create_room2(dx, include_room4=False):
     U2 : ndarray
         (ny, nx) array with the initial temperatures at the boundary'''
     
-    x = int(1.0/dx) + 1
-    y = int(2.0/dx) + 1
+    dx = int(1.0/n)
 
-    U2 = np.zeros((y, x)) + FLOOR_TEMP
+    U2 = np.zeros((2*n, n)) + FLOOR_TEMP
 
-    middle = int(1.0/dx)
+    middle = n
 
-    U2[0, :] = HEATER_TEMP
-    U2[:middle, 0] = WALL_TEMP
+    U2[middle-1:, -1] = WALL_TEMP
+    U2[:middle+1, 0] = WALL_TEMP
     U2[-1, :] = WINDOW_TEMP
-    U2[middle + 1:, -1] = WALL_TEMP
+    
+    U2[0, :] = HEATER_TEMP
 
     if include_room4:
         half = int(0.5/dx)+1
@@ -54,7 +53,7 @@ def create_room2(dx, include_room4=False):
 
     return U2
 
-def create_room3(dx):
+def create_room3(n):
     '''Initialize room 3 (1x1)
     Parameters: 
     dx : float
@@ -63,18 +62,17 @@ def create_room3(dx):
     U3 : ndarray
         (ny, nx) array with the initial temperatures at the boundary'''
     
-    x = int(1.0/dx) + 1
-    y = int(1.0/dx) + 1
+    dx = int(1.0/n)
 
-    U3 = np.zeros((y, x)) + FLOOR_TEMP
-
+    U3 = np.zeros((n, n)) + FLOOR_TEMP
+    
+    U3[-1, :] = WALL_TEMP
     U3[0, :] = WALL_TEMP
     U3[:, -1] = HEATER_TEMP
-    U3[-1, :] = WALL_TEMP
-
+    
     return U3
 
-def create_room4(dx):
+def create_room4(n):
     '''Initialize room 4 (1/2x1/2)
     Parameters: 
     dx : float
@@ -83,10 +81,9 @@ def create_room4(dx):
     U4 : ndarray
         (ny, nx) array with the initial temperatures at the boundary'''
 
-    x= int(0.5/dx) +1
-    y= int (0.5/dx) +1
+    dx = int(0.5/n)
 
-    U4 = np.zeros((x,y)) + FLOOR_TEMP
+    U4 = np.zeros((n/2,n/2)) + FLOOR_TEMP
 
     U4[-1, :]=HEATER_TEMP
     U4[:, -1]=WALL_TEMP
@@ -95,7 +92,7 @@ def create_room4(dx):
 
 ### BOUNDARY CONDITIONS ###
 
-def get_interfaces(U, dx):
+def get_interfaces(U, n):
     '''Boundary data set up with MPI communication.
     Dirichlet-Neumann set up:
         Dirichlet - rank 0 and 2 send interface temp values to rank 1.
@@ -111,37 +108,39 @@ def get_interfaces(U, dx):
         rank 0 - returns n1, the Neumann heat flux array at interface 1.
         rank 2 - returns n2, the Neumann heat flux array at interface 2.'''
     rank = get_rank()
-    middle = int(1.0/dx)
+    middle = n
 
     #Dirichlet boundary conditions
     if  rank == 0: #sending the right wall to rank 1
-        ts = np.ascontiguousarray(U[:,-1], dtype = np.float64)
+        ts = np.ascontiguousarray(U[1:-1,-1], dtype = np.float64)
         send_npdata(ts, dest = 1)
+        
     elif rank == 2: #sending the left wall to rank 1
-        ts = np.ascontiguousarray(U[:,0], dtype = np.float64)
+        ts = np.ascontiguousarray(U[1:-1,0], dtype = np.float64)
         send_npdata(ts, dest = 1)
     elif rank == 1:
-        d1_recv = np.zeros(middle + 1, dtype=np.float64) #empty spaces to store the data
-        d2_recv = np.zeros(U.shape[0] - middle, dtype=np.float64)
+        d1_recv = np.zeros(n-2, dtype=np.float64) #empty spaces to store the data
+        d2_recv = np.zeros(n-2, dtype=np.float64)
         recv_npdata(d1_recv, source = 0) #get values from room 1
         recv_npdata(d2_recv, source = 2) #get values from room 3
-        U[:middle + 1, -1] = d2_recv #apply the values to room 2
-        U[middle:, 0] = d1_recv
+        U[1:middle-1, -1] = d2_recv #apply the values to room 2
+        U[middle+1:-1, 0] = d1_recv
 
     #Neumann boundary conditions
     if rank == 1:
         #calculate the heat loss rate
-        n2 = np.ascontiguousarray((U[:middle + 1, 1] - U[:middle + 1, 0]), dtype = np.float64)
-        n1 = np.ascontiguousarray((U[middle:, -1] - U[middle:, -2]), dtype = np.float64)
+        n1 = -1*np.ascontiguousarray((U[middle+1:-1, 0] - U[middle+1:-1, 1]), dtype = np.float64)
+        n2 = -1*np.ascontiguousarray((U[1:middle-1, -1] - U[1:middle-1, -2]), dtype = np.float64)
+
         send_npdata(n1, dest=0) #sending heat values from room 1 to room 3
         send_npdata(n2, dest=2)
         return U
     elif rank == 0:
-        n1 = np.zeros(middle + 1, dtype=np.float64) #space for data from room 2
+        n1 = np.zeros(n-2, dtype=np.float64) #space for data from room 2
         recv_npdata(n1, source=1) #recieve data from room 2
         return n1
     elif rank == 2:
-        n2 = np.zeros(U.shape[0], dtype=np.float64) #space for data from room 2
+        n2 = np.zeros(n-2, dtype=np.float64) #space for data from room 2
         recv_npdata(n2, source=1) #recieve data from room 2
         return n2
 
