@@ -1,11 +1,11 @@
 
-#solve Ω2 with Dirichlet
+# solve Ω2 with Dirichlet
 #        ↓
-#solve Ω1 and Ω3 with Neumann
+# solve Ω1 and Ω3 and Ω4 with Neumann
 #        ↓
-#relax
+# relax
 #        ↓
-#repeat
+# repeat
 from .room_solver import room_solver as solve
 from .matrix import build_rhs, build_A
 from .constants import *

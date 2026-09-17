@@ -1,12 +1,5 @@
 from mpi4py import MPI
 
-""" Get a communicator:
-    The most common communicator is the
-    one that connects all available processes
-    which is called COMM_WORLD.
-    Clone the communicator to avoid interference
-    with other libraries or applications
-"""
 # Main project communictaor which can connect to all available processes.
 # Clone the communicator to avoid interfering with other libraries.
 comm = MPI.Comm.Clone( MPI.COMM_WORLD )
