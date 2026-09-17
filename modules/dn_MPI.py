@@ -54,7 +54,7 @@ def dn_iteration(room, n, rank, include_room4=False):
         room = solve_room2(room)
 
         # 3. *Now* compute fluxes from the new solution and send them
-        exchange_neumann(room, n)
+        exchange_neumann(room, n, with_room4=include_room4)
         return room
 
     if rank == 0:
@@ -71,9 +71,8 @@ def dn_iteration(room, n, rank, include_room4=False):
 
     if rank == 3:
         exchange_dirichlet(room, n, with_room4=include_room4)
-        return room
-        # flux4 = 1 * get_interface_room4(room, n)
-        # return solve_room4(room, flux4)
+        flux["left"] = exchange_neumann(room, n, with_room4=include_room4)
+        return solve_room4(room, flux)
 
 def dirichlet_neumann(room, n, rank, iterations=10, omega=0.8, include_room4=False):
     """

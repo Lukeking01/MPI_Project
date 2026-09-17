@@ -135,10 +135,10 @@ def exchange_dirichlet(U, n, with_room4 = False):
     return U
 
 
-def exchange_neumann(U, n):
+def exchange_neumann(U, n, with_room4 = False):
     '''Compute and exchange Neumann fluxes *after* room 2 has been solved.
     Rank 1 computes fluxes from its updated solution and sends them.
-    Rank 0 / 2 receive the fluxes.
+    Rank 0 / 2 / 4* receive the fluxes.
     '''
     rank = get_rank()
     middle = n
@@ -155,6 +155,17 @@ def exchange_neumann(U, n):
         )
         send_npdata(n1, dest=0)
         send_npdata(n2, dest=2)
+
+        if with_room4:
+            inter_start = middle + 1
+            inter_end = middle + int(n / 2) - 1
+            
+            # middle-right interface (shared with room 3)
+            n3 = np.ascontiguousarray(
+                (U[inter_start:inter_end, -2] - U[inter_start:inter_end, -1]) / DX, dtype=np.float64
+            )
+            send_npdata(n3, dest=3)
+        
         return U
     elif rank == 0:
         n1 = np.zeros(n - 2, dtype=np.float64)
@@ -164,7 +175,10 @@ def exchange_neumann(U, n):
         n2 = np.zeros(n - 2, dtype=np.float64)
         recv_npdata(n2, source=1)
         return n2
-    return U
+    elif rank == 3 and with_room4:
+        n3 = np.zeros(int(n / 2) - 2, dtype=np.float64)
+        recv_npdata(n3, source=1)
+        return n3
 
 def get_interface_room4(U,dx):
     '''Boundary data between rooms 2 and 4 set up with MPI communication.
