@@ -1,10 +1,10 @@
 ### Room Scenario Params ###
 
 # Amount of subdivisions to divide a square room into.
-N = 20
+N = 100
 DX = 1 / N
 # Smoothing param, lower to reduce large changes in temperature state between iterations.
-OMEGA = 0.8
+OMEGA = 0.6
 # Number of iterations to run.
 N_ITERATIONS = 10
 # Set to True to include the extension room, otherwise just computes the three-room floorplan.
