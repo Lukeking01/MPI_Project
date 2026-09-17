@@ -8,7 +8,7 @@ treated with Neumann interface conditions.
 """
 
 import numpy as np
-from .geometry import get_interfaces, get_interface_room4, exchange_dirichlet, exchange_neumann
+from .geometry import get_interface_room4, exchange_dirichlet, exchange_neumann
 from .iteration import solve_room1, solve_room2, solve_room3, solve_room4
 from .MPI import send_npdata, recv_npdata
 from .constants import *
@@ -44,55 +44,6 @@ def dn_iteration(room, n, rank, include_room4=False):
         Updated temperature field of the local room after one iteration.
     """
 
-    middle = n
-    half = int(n/2)
-    room4_start = middle
-    room4_end = room4_start + half
-    flux = {}
-
-    if rank == 1:
-        # -----------------------------------------
-        # 1. Update Room 2's interface temperatures and send fluxes
-        # -----------------------------------------
-        room = get_interfaces(room,n)
-        # -----------------------------------------
-        # 2. Solve Room 2 with Dirichlet conditions
-        # -----------------------------------------
-
-        if include_room4:
-            get_interface_room4(room,n)
-        room = solve_room2(room)
-
-        return room
-        
-    if rank == 0:
-        # -----------------------------------------
-        # 4. Solve Room 1 with Neumann
-        # -----------------------------------------
-        flux["right"] = -1*get_interfaces(room,n)
-        
-        room1 = solve_room1(
-            room,
-            flux
-        )
-        return room1
-
-    if rank == 2:
-        # -----------------------------------------
-        # 5. Solve Room 3 with Neumann
-        # -----------------------------------------
-        flux["left"] = -1*get_interfaces(room,n)
-        room3 = solve_room3(
-            room,
-            flux
-        )
-        return room3
-    if rank == 3:
-        flux4 = 1*get_interface_room4(room,n)
-        room4 = solve_room4(room, flux4)
-        return room4
-
-def dn_iteration(room, n, rank, include_room4=False):
     flux = {}
 
     if rank == 1:
@@ -113,12 +64,12 @@ def dn_iteration(room, n, rank, include_room4=False):
         # Send current interface temperatures
         exchange_dirichlet(room, n)
         # Receive flux that was computed *after* room 2 was solved
-        flux["right"] = -1 * exchange_neumann(room, n)
+        flux["right"] = exchange_neumann(room, n)
         return solve_room1(room, flux)
 
     if rank == 2:
         exchange_dirichlet(room, n)
-        flux["left"] = -1 * exchange_neumann(room, n)
+        flux["left"] = exchange_neumann(room, n)
         return solve_room3(room, flux)
 
     if rank == 3:

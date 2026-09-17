@@ -41,7 +41,7 @@ def create_room2(n, include_room4=False):
 
     U2[middle-1:, -1] = WALL_TEMP
     U2[:middle+1, 0] = WALL_TEMP
-    U2[-1, :] = WINDOW_TEMP-60
+    U2[-1, :] = WINDOW_TEMP
     
     U2[0, :] = HEATER_TEMP
 
@@ -92,57 +92,7 @@ def create_room4(n):
 
 ### BOUNDARY CONDITIONS ###
 
-def get_interfaces(U, n):
-    '''Boundary data set up with MPI communication.
-    Dirichlet-Neumann set up:
-        Dirichlet - rank 0 and 2 send interface temp values to rank 1.
-        Neumann - rank 1 calculates the flux derivative for the interfaces and sends them to rank 0 and 2.
-    Parameter:
-    U : ndarray
-        Temperature grid of the room.
-    dx : float
-        Step size for the grid.
-    Returns:
-    ndarray or tuple
-        rank 1 - updated room 2 with Dirichlet boundaries (walls).
-        rank 0 - returns n1, the Neumann heat flux array at interface 1.
-        rank 2 - returns n2, the Neumann heat flux array at interface 2.'''
-    rank = get_rank()
-    middle = n
 
-    #Dirichlet boundary conditions
-    if  rank == 0: #sending the right wall to rank 1
-        ts = np.ascontiguousarray(U[1:-1,-1], dtype = np.float64)
-        send_npdata(ts, dest = 1)
-        
-    elif rank == 2: #sending the left wall to rank 1
-        ts = np.ascontiguousarray(U[1:-1,0], dtype = np.float64)
-        send_npdata(ts, dest = 1)
-    elif rank == 1:
-        d1_recv = np.zeros(n-2, dtype=np.float64) #empty spaces to store the data
-        d2_recv = np.zeros(n-2, dtype=np.float64)
-        recv_npdata(d1_recv, source = 0) #get values from room 1
-        recv_npdata(d2_recv, source = 2) #get values from room 3
-        U[1:middle-1, -1] = d2_recv #apply the values to room 2
-        U[middle+1:-1, 0] = d1_recv
-
-    #Neumann boundary conditions
-    if rank == 1:
-        #calculate the heat loss rate
-        n1 = -1*np.ascontiguousarray((U[middle+1:-1, 0] - U[middle+1:-1, 1]), dtype = np.float64)
-        n2 = -1*np.ascontiguousarray((U[1:middle-1, -1] - U[1:middle-1, -2]), dtype = np.float64)
-
-        send_npdata(n1, dest=0) #sending heat values from room 1 to room 3
-        send_npdata(n2, dest=2)
-        return U
-    elif rank == 0:
-        n1 = np.zeros(n-2, dtype=np.float64) #space for data from room 2
-        recv_npdata(n1, source=1) #recieve data from room 2
-        return n1
-    elif rank == 2:
-        n2 = np.zeros(n-2, dtype=np.float64) #space for data from room 2
-        recv_npdata(n2, source=1) #recieve data from room 2
-        return n2
 
 def exchange_dirichlet(U, n):
     '''Exchange Dirichlet interface temperatures.
@@ -180,12 +130,15 @@ def exchange_neumann(U, n):
     middle = n
 
     if rank == 1:
-        # Fluxes from the *new* solution of room 2
-        n1 = -1 * np.ascontiguousarray(
-            (U[middle + 1:-1, 0] - U[middle + 1:-1, 1]), dtype=np.float64
+        from .constants import DX
+        # lower-left interface (shared with room 1)
+        # outward normal of room 2 points left → send opposite for room 1
+        n1 = np.ascontiguousarray(
+            (U[middle + 1:-1, 1] - U[middle + 1:-1, 0]) / DX, dtype=np.float64
         )
-        n2 = -1 * np.ascontiguousarray(
-            (U[1:middle - 1, -1] - U[1:middle - 1, -2]), dtype=np.float64
+        # upper-right interface (shared with room 3)
+        n2 = np.ascontiguousarray(
+            (U[1:middle - 1, -2] - U[1:middle - 1, -1]) / DX, dtype=np.float64
         )
         send_npdata(n1, dest=0)
         send_npdata(n2, dest=2)
