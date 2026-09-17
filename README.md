@@ -29,77 +29,85 @@ displayed in the final plot.
 ### A matrices:
 
 #### room 1
-   >In room 1, we can see the diagonal consisting of -4 and -3 values. The -4 value comes from the Laplace equation with 2nd order central differences. The -3 value appears, because of the interior points next to the Neumann interface $\Gamma_1$. Overall, the matrix is of size 4x4.
-   
-          [[-4.  1.  1.  0.]
-             [ 1. -3.  0.  1.]
-             [ 1.  0. -4.  1.]
-             [ 0.  1.  1. -3.]]
+   >In room 1, we can see the diagonal consisting of -4 and -3 values. The -4 value comes from the Laplace equation with 2nd order central differences. The -3 value appears, because of the interior points next to the Neumann interface $\Gamma_1$. Overall, the matrix is of size 6x6.
+
+             [[-4.  1.  0.  1.  0.  0.]
+             [ 1. -4.  1.  0.  1.  0.]
+             [ 1.  0. -3.  0.  0.  1.]
+             [ 1.  0.  0. -4.  1.  0.]
+             [ 0.  1.  0.  1. -4.  1.]
+             [ 0.  0.  1.  1.  0. -3.]]
 
 #### room 2
- >In room 2, we can see the diagonal consisting of -4 values, due to the Laplace equation. The off diagonal values of 1 are due to the connections to other interior points in the directions up, down, right or left. The size of this matrix is 10x10.
+ >In room 2, we can see the diagonal consisting of -4 values, due to the Laplace equation. The off diagonal values of 1 are due to the connections to other interior points in the directions up, down, right or left. The size of this matrix is 12x12.
 
-       [[-4.  1.  1.  0.  0.  0.  0.  0.  0.  0.]
-         [ 1. -4.  0.  1.  0.  0.  0.  0.  0.  0.]
-         [ 1.  0. -4.  1.  1.  0.  0.  0.  0.  0.]
-         [ 0.  1.  1. -4.  0.  1.  0.  0.  0.  0.]
-         [ 0.  0.  1.  0. -4.  1.  1.  0.  0.  0.]
-         [ 0.  0.  0.  1.  1. -4.  0.  1.  0.  0.]
-         [ 0.  0.  0.  0.  1.  0. -4.  1.  1.  0.]
-         [ 0.  0.  0.  0.  0.  1.  1. -4.  0.  1.]
-         [ 0.  0.  0.  0.  0.  0.  1.  0. -4.  1.]
-         [ 0.  0.  0.  0.  0.  0.  0.  1.  1. -4.]]
+         [[-4.  1.  1.  0.  0.  0.  0.  0.  0.  0.  0.  0.]
+          [ 1. -4.  0.  1.  0.  0.  0.  0.  0.  0.  0.  0.]
+          [ 1.  0. -4.  1.  1.  0.  0.  0.  0.  0.  0.  0.]
+          [ 0.  1.  1. -4.  0.  1.  0.  0.  0.  0.  0.  0.]
+          [ 0.  0.  1.  0. -4.  1.  1.  0.  0.  0.  0.  0.]
+          [ 0.  0.  0.  1.  1. -4.  0.  1.  0.  0.  0.  0.]
+          [ 0.  0.  0.  0.  1.  0. -4.  1.  1.  0.  0.  0.]
+          [ 0.  0.  0.  0.  0.  1.  1. -4.  0.  1.  0.  0.]
+          [ 0.  0.  0.  0.  0.  0.  1.  0. -4.  1.  1.  0.]
+          [ 0.  0.  0.  0.  0.  0.  0.  1.  1. -4.  0.  1.]
+          [ 0.  0.  0.  0.  0.  0.  0.  0.  1.  0. -4.  1.]
+          [ 0.  0.  0.  0.  0.  0.  0.  0.  0.  1.  1. -4.]]
 
 #### room 3
-   >Room 3 is similar to room 2, except for the order of the values on the diagonal, which in this case correspond to the other interface $\Gamma_2$. The size of the matrix is 4x4, just like in the case of room 1.
-   
-       [[-3.  1.  1.  0.]
-         [ 1. -4.  0.  1.]
-         [ 1.  0. -3.  1.]
-         [ 0.  1.  1. -4.]]
+   >Room 3 is similar to room 2, except for the order of the values on the diagonal, which in this case correspond to the other interface $\Gamma_2$. The size of the matrix is 6x6, just like in the case of room 1.
+
+         [[-3.  0.  1.  1.  0.  0.]
+          [ 1. -4.  1.  0.  1.  0.]
+          [ 0.  1. -4.  0.  0.  1.]
+          [ 1.  0.  0. -3.  0.  1.]
+          [ 0.  1.  0.  1. -4.  1.]
+          [ 0.  0.  1.  0.  1. -4.]]
+         
 ### b vectors:
 
 #### room 1
    >The right hand side vector for room one stores the Dirichlet boundary values combined with the Neumann flux derivatives and stores them as an array.
     
-            [-55.         -16.66666667 -55.         -16.66666667]
+           [-55. -15. -15. -55. -15. -15.]
 #### room 2
    >The vector for room 2 consists of the fixed temperature values of the outer walls and the Dirichlet values obtained from rooms 1 and 3.
 
-            [-55. -40. -15.   0. -15. -15.   0. -15.  -5. -20.]
+           [-55. -40. -15.   0. -15. -15. -15. -15.   0. -15.  -5. -20.]
 #### room 3 
    >Just as the vector for room 1, room 3 stores the Dirichlet boundary values combined with the Neumann flux derivatives.
 
-            [-17.77777778 -55.         -13.33333333 -55.        ]
+            [-15. -15. -80. -15. -15. -80.]
 
 ### Solved matrices:
 
 #### room 1
-   > This matrix represents the heat distribution of room one after solving $Au=b$. We can see that the top and bottom values are 15 as required and the left wall is 40 due to a heater. The internal values are 25 and 20 degrees approximately, which match the corresponding values in room 2.
+   > This matrix represents the heat distribution of room one after solving $Au=b$. We can see that the top and bottom values are 15 as required and the left wall is 40 due to a heater. 
  
-         [[40.         15.         15.         15.        ]
-         [40.         25.02126925 20.04638878 20.03080229]
-         [40.         25.03868821 20.13348358 20.44885733]
-         [40.         15.         15.         15.        ]]
+        [[40.         15.         15.         15.        ]
+          [40.         25.85306888 22.59841692 27.13823335]
+          [40.         25.81385859 22.40236547 26.19718638]
+          [40.         15.         15.         15.        ]]
 
 #### room 2
-   > Room 2 has 15 degrees on the upper part of the left and lower part of the right wall, as well as 40 degrees on the top due to a heater and 5 degrees because of the window on teh bottom wall. The interior values range from 12 to 26 degrees, with interface values matching those of room 1 and 3.
+   > Room 2 has 15 degrees on the upper part of the left and lower part of the right wall, as well as 40 degrees on the top due to a heater and 5 degrees because of the window on teh bottom wall. 
 
-        [[15.         40.         40.         15.        ]
-         [15.         25.29881236 26.6707221  20.56578179]
-         [15.         19.52452735 20.81829426 20.09303321]
-         [15.         16.98100279 16.98489437 15.        ]
-         [20.03080316 16.41458944 15.14028044 15.        ]
-         [20.44885807 13.50627137 12.16163795 15.        ]
-         [15.          5.          5.         15.        ]]
+         [[15.         40.         40.         40.        ]
+          [15.         22.37257409 18.59559567  0.        ]
+          [15.         15.89470069 12.0098086   0.        ]
+          [15.         14.19642005 13.54893804 15.        ]
+          [15.         12.34204149 12.9895235  15.        ]
+          [ 0.          7.18222239 11.06711448 15.        ]
+          [ 0.          5.3197336   9.09671202 15.        ]
+          [ 5.          5.          5.          5.        ]]
 
 #### room 3 
-   > Room 3 has two regular walls on the top and bottom with 15 degrees and a heater on the right wall of 40 degrees. The internal temperatures are approximately 24, 20 and 19 degrees. The interface values on the right match those of room 2 as expected.
+   > Room 3 has two regular walls on the top and bottom with 15 degrees and a heater on the right wall of 40 degrees.
 
         [[15.         15.         15.         40.        ]
-         [20.56578179 19.42146932 24.81841236 40.        ]
-         [20.09303328 19.59030807 24.85218011 40.        ]
-         [15.         15.         15.         15.        ]]
+          [42.98666006 31.46770123 37.10968436 40.        ]
+          [39.65910449 30.77446048 36.97103621 40.        ]
+          [15.         15.         15.         40.        ]]
 
 3. **Task 2:** Is heating in the flat adequate?
 
@@ -135,22 +143,28 @@ displayed in the final plot.
 
    > The room 2 A matrix looks similar to the one we had in the original part of Project 1. Except for a slight shift of the placement of the -4 and 1 values, due to the interaction with room 4. 
 
-      [[-4.  1.  1.  0.  0.  0.  0.  0.  0.  0.]
-       [ 1. -4.  0.  1.  0.  0.  0.  0.  0.  0.]
-       [ 1.  0. -4.  1.  1.  0.  0.  0.  0.  0.]
-       [ 0.  1.  1. -4.  0.  1.  0.  0.  0.  0.]
-       [ 0.  0.  1.  0. -4.  1.  1.  0.  0.  0.]
-       [ 0.  0.  0.  1.  1. -4.  0.  1.  0.  0.]
-       [ 0.  0.  0.  0.  1.  0. -4.  1.  1.  0.]
-       [ 0.  0.  0.  0.  0.  1.  1. -4.  0.  1.]
-       [ 0.  0.  0.  0.  0.  0.  1.  0. -4.  1.]
-       [ 0.  0.  0.  0.  0.  0.  0.  1.  1. -4.]]
+      [[-4.  1.  1.  0.  0.  0.  0.  0.  0.  0.  0.  0.]
+       [ 1. -4.  0.  1.  0.  0.  0.  0.  0.  0.  0.  0.]
+       [ 1.  0. -4.  1.  1.  0.  0.  0.  0.  0.  0.  0.]
+       [ 0.  1.  1. -4.  0.  1.  0.  0.  0.  0.  0.  0.]
+       [ 0.  0.  1.  0. -4.  1.  1.  0.  0.  0.  0.  0.]
+       [ 0.  0.  0.  1.  1. -4.  0.  1.  0.  0.  0.  0.]
+       [ 0.  0.  0.  0.  1.  0. -4.  1.  1.  0.  0.  0.]
+       [ 0.  0.  0.  0.  0.  1.  1. -4.  0.  1.  0.  0.]
+       [ 0.  0.  0.  0.  0.  0.  1.  0. -4.  1.  1.  0.]
+       [ 0.  0.  0.  0.  0.  0.  0.  1.  1. -4.  0.  1.]
+       [ 0.  0.  0.  0.  0.  0.  0.  0.  1.  0. -4.  1.]
+       [ 0.  0.  0.  0.  0.  0.  0.  0.  0.  1.  1. -4.]]
 
 #### room 4
 
    > Due to the lack of internal points in room 2 in the case dx=1/3, the matrix A is empty and we chose not to display it.
 
 ### b vector:
+
+### room 2 
+
+      [-55. -40. -15.   0. -15. -15. -15. -15.   0. -15.  -5. -20.]
 
 #### room 4
 
@@ -162,38 +176,39 @@ displayed in the final plot.
 
    > In room 1, we can see that the top and bottom values are 15 as required and the left wall is 40 due to a heater. The internal values are between 25 and 19 degrees approximately, which match the corresponding values in room 2.
 
-      [[40.         15.         15.         15.        ]
-       [40.         25.12852378 20.25187818 19.95861831]
-       [40.         25.26222258 20.92037217 23.16738946]
+     [[40.         15.         15.         15.        ]
+       [40.         25.85306888 22.59841692 27.13823335]
+       [40.         25.81385859 22.40236547 26.19718638]
        [40.         15.         15.         15.        ]]
 
 #### room 2
 
    > Room 2 has 15 degrees on the upper part of the left, as well as 40 degrees on the top due to a heater and 5 degrees because of the window on teh bottom wall. The interior values range from 14 to 39 degrees, with interface values matching those of room 1, 3 and 4.
 
-      [[15.         40.         40.         15.        ]
-       [15.         25.39081583 26.77204874 20.56627449]
-       [15.         19.79122022 21.13110875 20.10781142]
-       [15.         17.64295782 17.85335463 15.        ]
-       [19.95885787 17.92725797 17.63935349 14.99999846]
-       [23.1673904  16.46786269 19.77680289 39.9999959 ]
-       [15.          5.          5.         15.        ]]
+      [[15.         40.         40.         40.        ]
+       [15.         22.37257409 18.59559567  0.        ]
+       [15.         15.89470069 12.0098086   0.        ]
+       [15.         14.19642005 13.54893804 15.        ]
+       [15.         12.34204149 12.9895235  15.        ]
+       [ 0.          7.18222239 11.06711448 15.        ]
+       [ 0.          5.3197336   9.09671202 15.        ]
+       [ 5.          5.          5.          5.        ]]
 
 #### room 3
 
    > Room 3 has two regular walls on the top and bottom with 15 degrees and a heater on the right wall of 40 degrees. The internal temperatures are approximately 24, 20 and 19 degrees. The interface values on the right match those of room 2 as expected.
 
       [[15.         15.         15.         40.        ]
-       [20.56657741 19.41209884 24.81494649 40.        ]
-       [20.10812978 19.57583014 24.84769275 40.        ]
-       [15.         15.         15.         15.        ]]
+       [42.98666006 31.46770123 37.10968436 40.        ]
+       [39.65910449 30.77446048 36.97103621 40.        ]
+       [15.         15.         15.         40.        ]]
 
 #### room 4
 
    > Room 4 does not have any internal points to discuss, however the values of the interface between room 2 and 4 match approximately.
 
       [[15. 15.]
-       [40. 15.]]
+       [40. 40.]]
 
 3. **Task 2:** Is heating in the flat adequate?
 
