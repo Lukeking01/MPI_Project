@@ -8,9 +8,8 @@ treated with Neumann interface conditions.
 """
 
 import numpy as np
-from .geometry import get_interface_room4, exchange_dirichlet, exchange_neumann
-from .iteration import solve_room1, solve_room2, solve_room3, solve_room4
-from .MPI import send_npdata, recv_npdata
+from .geometry import exchange_dirichlet, exchange_neumann
+from .room_solver import solve_room1, solve_room2, solve_room3, solve_room4
 from .constants import *
 
 def dn_iteration(room, n, rank, include_room4=False):

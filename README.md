@@ -264,7 +264,8 @@ or create one if none existed.
 
 ## Potential Flaws and Notes for Improvement
 
-- Convert from building room dimensions from dx, to building dx from room dimensions (DONE!)
+- (DONE!) Convert from building room dimensions from dx, to building dx from room dimensions
+- Remove the need for an iteration count. Determine a good hueristic to compare the rooms delta between iterations. If the change is below a threshold after smoothing, then consider the solution stable and return the solution along with how many iterations it took. 
 - Display quantitative analysis of temperature distribution on each room and some metric to display comparing all rooms as a whole.
 - Add animation file save support to a constant.
 - Add console params to override constants for room size, omega value, and if the extension should be included

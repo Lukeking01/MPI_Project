@@ -7,6 +7,7 @@ grid for both pure Dirichlet problems and mixed Dirichlet-Neumann
 problems that arise in the Dirichlet-Neumann domain-decomposition
 scheme.
 """
+
 from scipy.sparse import lil_matrix
 import numpy as np
 from modules.constants import *
