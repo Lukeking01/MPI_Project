@@ -22,7 +22,7 @@ FLOOR_TEMP = 0.0    # Generic starting room temperature, changes through iterati
 # Set to true to save all iterations and animate from the initial state to the end state.
 ANIMATE = True
 # Set to True to crop out the boundary conditions, so they won't show in the plot.
-CROP = 0
+CROP = True
 
 # Keyword args to configure the plotting functionality, should be compatible with
 # `plot_temperature()`

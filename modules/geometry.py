@@ -144,7 +144,6 @@ def exchange_neumann(U, n):
     middle = n
 
     if rank == 1:
-        from .constants import DX
         # lower-left interface (shared with room 1)
         # outward normal of room 2 points left → send opposite for room 1
         n1 = np.ascontiguousarray(
@@ -266,7 +265,7 @@ def floorplan_addition(rooms):
         (room_2.shape[0] - room_1.shape[0], 0),
         (0, room_width),
         (0, room_width * 2),
-        (room_3.shape[0], room_width * 2),
+        (room_3.shape[0], room_width * 2) if not CROP else (room_3.shape[0] + 2, room_width * 2),
     ]
 
     for room, (r_off, c_off) in zip(rooms, room_offsets):
