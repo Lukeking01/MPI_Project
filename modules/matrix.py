@@ -11,289 +11,366 @@ from scipy.sparse import lil_matrix
 import numpy as np
 from modules.constants import *
 
-def build_internal_matrix(room,nx,ny):
+def build_A(nx, ny, neumann_sides=None):
     """
-    Build the finite-difference matrix for the interior unknowns.
+    Build the finite-difference matrix for nx * ny unknowns.
 
-    The matrix corresponds to the standard five-point stencil
-
-        u_{i-1,j} + u_{i+1,j} + u_{i,j-1} + u_{i,j+1} - 4 u_{i,j} = 0
-
-    on the interior nodes only.  Boundary contributions are moved to the
-    right-hand side by the companion RHS builders.
-
-    Parameters
-    ----------
-    room : ndarray
-        Temperature field of shape ``(ny+2, nx+2)`` that includes a one-cell
-        layer of boundary values.  Only the shape is used; the values
-        themselves are ignored.
-
-    Returns
-    -------
-    ndarray
-        Sparse matrix of shape ``((nx*ny), (nx*ny))`` where
-        ``nx = room.shape[1]-2`` and ``ny = room.shape[0]-2``.
+    Neumann boundaries use a first-order one-sided derivative
+    together with a one-sided second derivative.
     """
-    nx -= 2
-    ny -= 2
-    A = lil_matrix((nx * ny, nx * ny))
+
+    if neumann_sides is None:
+        neumann_sides = set()
+    else:
+        neumann_sides = set(neumann_sides)
+
+    N = nx * ny
+    A = lil_matrix((N, N))
+
+    def idx(i, j):
+        return j * nx + i
+
+    # ------------------------------------------------
+    # Standard stencil
+    # ------------------------------------------------
 
     for j in range(ny):
         for i in range(nx):
 
-            index = j * nx + i
+            row = idx(i, j)
 
-            # Center
-            A[index, index] = -4
+            A[row, row] = -4
 
-            # Left
             if i > 0:
-                A[index, index - 1] = 1
+                A[row, idx(i - 1, j)] = 1
 
-            # Right
             if i < nx - 1:
-                A[index, index + 1] = 1
+                A[row, idx(i + 1, j)] = 1
 
-            # Top
             if j > 0:
-                A[index, index - nx] = 1
+                A[row, idx(i, j - 1)] = 1
 
-            # Bottom
             if j < ny - 1:
-                A[index, index + nx] = 1
+                A[row, idx(i, j + 1)] = 1
 
-    return A
+    # ------------------------------------------------
+    # Neumann boundaries
+    # ------------------------------------------------
 
+    if "left" in neumann_sides:
+        for j in range(ny):
+            row = idx(0, j)
 
-def build_rhs_dirichlet(room):
+            A[row, row] = -3
+
+            # Remove immediate inward neighbour
+            A[row, idx(1, j)] = 0
+
+            # Connect to second point inward
+            if nx > 2:
+                A[row, idx(2, j)] = 1
+
+    if "right" in neumann_sides:
+        for j in range(ny):
+            row = idx(nx - 1, j)
+
+            A[row, row] = -3
+
+            # Remove immediate inward neighbour
+            A[row, idx(nx - 2, j)] = 0
+
+            # Connect to second point inward
+            if nx > 2:
+                A[row, idx(nx - 3, j)] = 1
+
+    if "bottom" in neumann_sides:
+        for i in range(nx):
+            row = idx(i, 0)
+
+            A[row, row] = -3
+            A[row, idx(i, 1)] = 0
+
+            if ny > 2:
+                A[row, idx(i, 2)] = 1
+
+    if "top" in neumann_sides:
+        for i in range(nx):
+            row = idx(i, ny - 1)
+
+            A[row, row] = -3
+            A[row, idx(i, ny - 2)] = 0
+
+            if ny > 2:
+                A[row, idx(i, ny - 3)] = 1
+
+    return A.tocsr()
+
+def build_A(nx, ny, neumann_sides=None):
     """
-    Build the right-hand side for a pure Dirichlet problem.
+    Build the finite-difference matrix for nx * ny unknowns.
 
-    All four sides of the room are treated as Dirichlet boundaries.
-    Their known values are moved to the right-hand side of the linear
-    system that is formed with :func:`build_internal_matrix`.
-
-    Parameters
-    ----------
-    room : ndarray
-        Temperature field of shape ``(ny+2, nx+2)`` containing the
-        current Dirichlet data on all four boundaries.
-
-    Returns
-    -------
-    ndarray
-        Vector of length ``nx*ny`` that forms the right-hand side of
-        ``A u = b``.
+    Neumann boundaries use a first-order one-sided derivative
+    together with a one-sided second derivative.
     """
-    ny, nx = room.shape
-    ny -= 2
-    nx -= 2
-    
+
+    if neumann_sides is None:
+        neumann_sides = set()
+    else:
+        neumann_sides = set(neumann_sides)
+
+    N = nx * ny
+    A = lil_matrix((N, N))
+
+    def idx(i, j):
+        return j * nx + i
+
+    # ------------------------------------------------
+    # Standard stencil
+    # ------------------------------------------------
+
+    for j in range(ny):
+        for i in range(nx):
+
+            row = idx(i, j)
+
+            A[row, row] = -4
+
+            if i > 0:
+                A[row, idx(i - 1, j)] = 1
+
+            if i < nx - 1:
+                A[row, idx(i + 1, j)] = 1
+
+            if j > 0:
+                A[row, idx(i, j - 1)] = 1
+
+            if j < ny - 1:
+                A[row, idx(i, j + 1)] = 1
+
+    # ------------------------------------------------
+    # Neumann boundaries
+    # ------------------------------------------------
+
+    if "left" in neumann_sides:
+        for j in range(ny):
+            row = idx(0, j)
+
+            A[row, row] = -3
+
+            # Remove immediate inward neighbour
+            A[row, idx(1, j)] = 0
+
+            # Connect to second point inward
+            if nx > 2:
+                A[row, idx(2, j)] = 1
+
+    if "right" in neumann_sides:
+        for j in range(ny):
+            row = idx(nx - 1, j)
+
+            A[row, row] = -3
+
+            # Remove immediate inward neighbour
+            A[row, idx(nx - 2, j)] = 0
+
+            # Connect to second point inward
+            if nx > 2:
+                A[row, idx(nx - 3, j)] = 1
+
+    if "bottom" in neumann_sides:
+        for i in range(nx):
+            row = idx(i, 0)
+
+            A[row, row] = -3
+            A[row, idx(i, 1)] = 0
+
+            if ny > 2:
+                A[row, idx(i, 2)] = 1
+
+    if "top" in neumann_sides:
+        for i in range(nx):
+            row = idx(i, ny - 1)
+
+            A[row, row] = -3
+            A[row, idx(i, ny - 2)] = 0
+
+            if ny > 2:
+                A[row, idx(i, ny - 3)] = 1
+
+    return A.tocsr()
+
+def build_A(nx, ny, neumann_sides=None):
+
+    if neumann_sides is None:
+        neumann_sides = set()
+    else:
+        neumann_sides = set(neumann_sides)
+
+    N = nx * ny
+    A = lil_matrix((N, N))
+
+    def idx(i, j):
+        return j * nx + i
+
+    # ------------------------------------------------
+    # Standard interior stencil
+    # ------------------------------------------------
+
+    for j in range(ny):
+        for i in range(nx):
+
+            row = idx(i, j)
+
+            A[row, row] = -4
+
+            if i > 0:
+                A[row, idx(i - 1, j)] = 1
+
+            if i < nx - 1:
+                A[row, idx(i + 1, j)] = 1
+
+            if j > 0:
+                A[row, idx(i, j - 1)] = 1
+
+            if j < ny - 1:
+                A[row, idx(i, j + 1)] = 1
+
+    # ------------------------------------------------
+    # Left Neumann
+    # ------------------------------------------------
+
+    if "left" in neumann_sides:
+
+        for j in range(ny):
+
+            row = idx(0, j)
+
+            A[row, row] = -3
+
+            # Remove immediate neighbour
+            A[row, idx(1, j)] = 0
+
+            # Add second point inward
+            A[row, idx(2, j)] = 1
+
+    # ------------------------------------------------
+    # Right Neumann
+    # ------------------------------------------------
+
+    if "right" in neumann_sides:
+
+        for j in range(ny):
+
+            row = idx(nx - 1, j)
+
+            A[row, row] = -3
+
+            # Remove immediate neighbour
+            A[row, idx(nx - 2, j)] = 0
+
+            # Add second point inward
+            A[row, idx(nx - 3, j)] = 1
+
+    # ------------------------------------------------
+    # Bottom Neumann
+    # ------------------------------------------------
+
+    if "bottom" in neumann_sides:
+
+        for i in range(nx):
+
+            row = idx(i, 0)
+
+            A[row, row] = -3
+
+            A[row, idx(i, 1)] = 0
+
+            A[row, idx(i, 2)] = 1
+
+    # ------------------------------------------------
+    # Top Neumann
+    # ------------------------------------------------
+
+    if "top" in neumann_sides:
+
+        for i in range(nx):
+
+            row = idx(i, ny - 1)
+
+            A[row, row] = -3
+
+            A[row, idx(i, ny - 2)] = 0
+
+            A[row, idx(i, ny - 3)] = 1
+
+    return A.tocsr()
+
+def build_rhs(room, nx, ny, neumann_sides=None, flux=None):
+
+    if neumann_sides is None:
+        neumann_sides = set()
+    else:
+        neumann_sides = set(neumann_sides)
+
+    if flux is None:
+        flux = {}
+
     b = np.zeros(nx * ny)
 
+    def idx(i, j):
+        return j * nx + i
+
+    # --------------------------------------------------
+    # Dirichlet contributions
+    # --------------------------------------------------
+
     for j in range(ny):
         for i in range(nx):
 
-            p = j * nx + i
+            p = idx(i, j)
 
-            # Bottom boundary
-            if j == 0:
+            # bottom
+            if j == 0 and "bottom" not in neumann_sides:
                 b[p] -= room[0, i + 1]
 
-            # Top boundary
-            if j == ny - 1:
-                b[p] -= room[ny + 1, i + 1]
+            # top
+            if j == ny - 1 and "top" not in neumann_sides:
+                b[p] -= room[-1, i + 1]
 
-            # Left boundary
-            if i == 0:
+            # left
+            if i == 0 and "left" not in neumann_sides:
                 b[p] -= room[j + 1, 0]
 
-            # Right boundary
-            if i == nx - 1:
-                b[p] -= room[j + 1, nx + 1]
+            # right
+            if i == nx - 1 and "right" not in neumann_sides:
+                b[p] -= room[j + 1, -1]
 
-    return b
+    # --------------------------------------------------
+    # Neumann contributions
+    # --------------------------------------------------
 
+    if "left" in neumann_sides:
+        q = np.asarray(flux.get("left", np.zeros(ny)))
 
-def build_matrix_neumann_right(room):
-    """
-    Build the system matrix for a Neumann condition on the right boundary.
+        for j in range(ny):
+            b[idx(0, j)] -= 2 * DX * q[j]
 
-    Starting from the pure interior matrix, the diagonal entry of every
-    node adjacent to the right boundary is changed from -4 to -3.  This
-    corresponds to the second-order approximation
+    if "right" in neumann_sides:
+        q = np.asarray(flux.get("right", np.zeros(ny)))
 
-        u_ghost = u_interior - dx * flux
+        for j in range(ny):
+            b[idx(nx - 1, j)] -= 2 * DX * q[j]
 
-    that eliminates the fictitious exterior node.
+    if "bottom" in neumann_sides:
+        q = np.asarray(flux.get("bottom", np.zeros(nx)))
 
-    Parameters
-    ----------
-    room : ndarray
-        Temperature field whose shape determines the grid size
-        (``ny+2, nx+2``).
-
-    Returns
-    -------
-    ndarray
-        Modified dense matrix of shape ``((nx*ny), (nx*ny))``.
-    """
-    ny, nx = room.shape
-
-    A = build_internal_matrix(room,ny,nx+1)
-    for j in range(ny-2):
-        for i in range(nx-1):
-    
-                index = j * (nx-1) + i
-    
-                # Center
-                if i == nx-2:
-                    A[index, index] = -3
-                    if index != (ny-2)*(nx-1)-1:
-                        A[index, index + 1] = 0
-
-    return A
-
-
-def build_rhs_neumann_right(room, flux):
-    """
-    Build the right-hand side for a Neumann condition on the right side.
-
-    The left, bottom and top boundaries remain Dirichlet; the right
-    boundary is Neumann.  The supplied flux values appear on the
-    right-hand side multiplied by the mesh width ``dx``.
-
-    Parameters
-    ----------
-    room : ndarray
-        Temperature field of shape ``(ny+2, nx+2)`` containing the
-        known Dirichlet data on the three non-Neumann sides.
-    flux : ndarray
-        One-dimensional array of length ``ny`` holding the Neumann flux
-        at each interior row of the right boundary.
-
-    Returns
-    -------
-    ndarray
-        Vector of length ``nx*ny`` that forms the right-hand side of
-        the linear system.
-    """
-    ny, nx = room.shape
-    ny -= 2
-    nx -= 1
-
-    dx = 1 / (nx + 1)
-
-    b = np.zeros(nx * ny)
-
-    for j in range(ny):
         for i in range(nx):
+            b[idx(i, 0)] -= 2 * DX * q[i]
 
-            p = j * nx + i
+    if "top" in neumann_sides:
+        q = np.asarray(flux.get("top", np.zeros(nx)))
 
-            # Left heater
-            if i == 0:
-                b[p] -= HEATER_TEMP
-
-            # Bottom wall
-            if j == 0:
-                b[p] -= WALL_TEMP
-
-            # Top wall
-            if j == ny - 1:
-                b[p] -= WALL_TEMP
-
-            # Right Neumann boundary
-            if i == nx - 1:
-                b[p] -= dx * flux[j]
-
-    return b
-
-def build_matrix_neumann_left(room):
-    """
-    Build the system matrix for a Neumann condition on the left boundary.
-
-    Analogous to :func:`build_matrix_neumann_right`, the diagonal entry of
-    every node adjacent to the left boundary is changed from -4 to -3.
-
-    Parameters
-    ----------
-    room : ndarray
-        Temperature field whose shape determines the grid size
-        (``ny+2, nx+2``).
-
-    Returns
-    -------
-    ndarray
-        Modified dense matrix of shape ``((nx*ny), (nx*ny))``.
-    """
-    ny, nx = room.shape
-    A = build_internal_matrix(room,ny,nx+1)
-
-    for j in range(ny-2):
-            for i in range(nx-1):
-    
-                index = j * (nx-1) + i
-    
-                # Center
-                if i == 0:
-                    A[index, index] = -3
-                    if index != 0:
-                        A[index, index - 1] = 0
-    
-    return A
-
-
-def build_rhs_neumann_left(room, flux):
-    """
-    Build the right-hand side for a Neumann condition on the left side.
-
-    The right, bottom and top boundaries remain Dirichlet; the left
-    boundary is Neumann.  The supplied flux values appear on the
-    right-hand side multiplied by the mesh width ``dx``.
-
-    Parameters
-    ----------
-    room : ndarray
-        Temperature field of shape ``(ny+2, nx+2)`` containing the
-        known Dirichlet data on the three non-Neumann sides.
-    flux : ndarray
-        One-dimensional array of length ``ny`` holding the Neumann flux
-        at each interior row of the left boundary.
-
-    Returns
-    -------
-    ndarray
-        Vector of length ``nx*ny`` that forms the right-hand side of
-        the linear system.
-    """
-    ny, nx = room.shape
-    ny -= 2
-    nx -= 1
-    dx = 1 / (nx + 1)
-    b = np.zeros(nx * ny)
-
-    for j in range(ny):
         for i in range(nx):
-
-            p = j * nx + i
-
-            # Right heater
-            if i == nx - 1:
-                b[p] -= HEATER_TEMP
-
-            # Bottom wall
-            if j == 0:
-                b[p] -= WALL_TEMP
-
-            # Top wall
-            if j == ny - 1:
-                b[p] -= WALL_TEMP
-
-            # Left Neumann
-            if i == 0:
-                b[p] -= dx * flux[j]
+            b[idx(i, ny - 1)] -= 2 * DX * q[i]
 
     return b
-

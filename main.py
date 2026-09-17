@@ -17,18 +17,18 @@ def main():
     
     # Initialize room states
     if rank == 0:
-        room = create_room1(DX)
+        room = create_room1(N)
     if rank == 1:
-        room = create_room2(DX, include_room4=INCLUDE_ROOM4)
+        room = create_room2(N, include_room4=INCLUDE_ROOM4)
     if rank == 2:
-        room = create_room3(DX)
+        room = create_room3(N)
     if INCLUDE_ROOM4 and rank == 3:
-        room = create_room4(DX)
+        room = create_room4(N)
 
     # Run simulation with all params
     solution = dirichlet_neumann(
         room,
-        dx = DX,
+        n = N,
         rank = rank,
         iterations = N_ITERATIONS,
         omega = OMEGA,
@@ -42,8 +42,8 @@ def main():
     if rank == 0:
         # Note, all these rooms are being used for is to get the dimensions of each room,
         # that can certainly be made more efficient by not building the full rooms.
-        room2 = create_room2(DX, include_room4=INCLUDE_ROOM4)
-        room3 = create_room3(DX)
+        room2 = create_room2(N, include_room4=INCLUDE_ROOM4)
+        room3 = create_room3(N)
 
         sol_frame_count = solution.shape[0]
 

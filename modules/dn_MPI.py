@@ -8,7 +8,7 @@ treated with Neumann interface conditions.
 """
 
 import numpy as np
-from .geometry import get_interfaces, get_interface_room4
+from .geometry import get_interfaces, get_interface_room4, exchange_dirichlet, exchange_neumann
 from .iteration import solve_room1, solve_room2, solve_room3, solve_room4
 from .MPI import send_npdata, recv_npdata
 from .constants import *
@@ -48,6 +48,7 @@ def dn_iteration(room, n, rank, include_room4=False):
     half = int(n/2)
     room4_start = middle
     room4_end = room4_start + half
+    flux = {}
 
     if rank == 1:
         # -----------------------------------------
@@ -59,7 +60,7 @@ def dn_iteration(room, n, rank, include_room4=False):
         # -----------------------------------------
 
         if include_room4:
-            get_interface_room4(room,dx)
+            get_interface_room4(room,n)
         room = solve_room2(room)
 
         return room
@@ -68,14 +69,11 @@ def dn_iteration(room, n, rank, include_room4=False):
         # -----------------------------------------
         # 4. Solve Room 1 with Neumann
         # -----------------------------------------
-        flux1 = get_interfaces(room,dx)[1:-1]
+        flux["right"] = -1*get_interfaces(room,n)
         
         room1 = solve_room1(
             room,
-            flux1,
-            nx+1,
-            ny,
-            dx
+            flux
         )
         return room1
 
@@ -83,24 +81,51 @@ def dn_iteration(room, n, rank, include_room4=False):
         # -----------------------------------------
         # 5. Solve Room 3 with Neumann
         # -----------------------------------------
-        flux3 = -1*get_interfaces(room,dx)[1:-1]
+        flux["left"] = -1*get_interfaces(room,n)
         room3 = solve_room3(
             room,
-            flux3,
-            nx+1,
-            ny,
-            dx
+            flux
         )
         return room3
     if rank == 3:
-        flux4 = -1*get_interface_room4(room,dx)[1:-1]
-        room4 = solve_room4(room, flux4, nx+1, ny, dx)
-        
+        flux4 = 1*get_interface_room4(room,n)
+        room4 = solve_room4(room, flux4)
         return room4
 
-    
+def dn_iteration(room, n, rank, include_room4=False):
+    flux = {}
 
-def dirichlet_neumann(room, dx, rank, iterations=10, omega=0.8, include_room4=False):
+    if rank == 1:
+        # 1. Receive Dirichlet data from rooms 1 & 3
+        room = exchange_dirichlet(room, n)
+
+        if include_room4:
+            get_interface_room4(room, n)
+
+        # 2. Solve room 2
+        room = solve_room2(room)
+
+        # 3. *Now* compute fluxes from the new solution and send them
+        exchange_neumann(room, n)
+        return room
+
+    if rank == 0:
+        # Send current interface temperatures
+        exchange_dirichlet(room, n)
+        # Receive flux that was computed *after* room 2 was solved
+        flux["right"] = -1 * exchange_neumann(room, n)
+        return solve_room1(room, flux)
+
+    if rank == 2:
+        exchange_dirichlet(room, n)
+        flux["left"] = -1 * exchange_neumann(room, n)
+        return solve_room3(room, flux)
+
+    if rank == 3:
+        flux4 = 1 * get_interface_room4(room, n)
+        return solve_room4(room, flux4)
+
+def dirichlet_neumann(room, n, rank, iterations=10, omega=0.8, include_room4=False):
     """
     Run the full Dirichlet-Neumann iteration with relaxation.
 
@@ -143,7 +168,7 @@ def dirichlet_neumann(room, dx, rank, iterations=10, omega=0.8, include_room4=Fa
         old_room = room.copy()
 
         new_room = dn_iteration(
-            room, dx, rank, include_room4=include_room4
+            room, n, rank, include_room4=include_room4
         )
 
         room = relax(new_room, old_room, omega)

@@ -1,6 +1,6 @@
 import numpy as np
 from .MPI import send_npdata, recv_npdata, get_rank
-from .constants import HEATER_TEMP, WINDOW_TEMP, WALL_TEMP, FLOOR_TEMP
+from .constants import *
 
 ### ROOM BUILDERS ###
 
@@ -41,13 +41,13 @@ def create_room2(n, include_room4=False):
 
     U2[middle-1:, -1] = WALL_TEMP
     U2[:middle+1, 0] = WALL_TEMP
-    U2[-1, :] = WINDOW_TEMP
+    U2[-1, :] = WINDOW_TEMP-60
     
     U2[0, :] = HEATER_TEMP
 
     if include_room4:
-        half = int(0.5/dx)+1
-        room4_start=middle+1
+        half = int(n/2)
+        room4_start=n
         room4_end=room4_start+half
         U2[room4_start:room4_end, -1]=FLOOR_TEMP
 
@@ -82,8 +82,8 @@ def create_room4(n):
         (ny, nx) array with the initial temperatures at the boundary'''
 
     dx = int(0.5/n)
-
-    U4 = np.zeros((n/2,n/2)) + FLOOR_TEMP
+    size = int(n/2)
+    U4 = np.zeros((size,size)) + FLOOR_TEMP
 
     U4[-1, :]=HEATER_TEMP
     U4[:, -1]=WALL_TEMP
@@ -143,6 +143,62 @@ def get_interfaces(U, n):
         n2 = np.zeros(n-2, dtype=np.float64) #space for data from room 2
         recv_npdata(n2, source=1) #recieve data from room 2
         return n2
+
+def exchange_dirichlet(U, n):
+    '''Exchange Dirichlet interface temperatures.
+    Rank 0 and 2 send their interface temps to rank 1.
+    Rank 1 receives and applies them to room 2 interfaces.
+    '''
+    rank = get_rank()
+    middle = n
+
+    if rank == 0:  # sending the right wall to rank 1
+        ts = np.ascontiguousarray(U[1:-1, -1], dtype=np.float64)
+        send_npdata(ts, dest=1)
+        return U
+    elif rank == 2:  # sending the left wall to rank 1
+        ts = np.ascontiguousarray(U[1:-1, 0], dtype=np.float64)
+        send_npdata(ts, dest=1)
+        return U
+    elif rank == 1:
+        d1_recv = np.zeros(n - 2, dtype=np.float64)
+        d2_recv = np.zeros(n - 2, dtype=np.float64)
+        recv_npdata(d1_recv, source=0)  # from room 1
+        recv_npdata(d2_recv, source=2)  # from room 3
+        U[1:middle - 1, -1] = d2_recv   # upper-right interface (from room 3)
+        U[middle + 1:-1, 0] = d1_recv   # lower-left interface (from room 1)
+        return U
+    return U
+
+
+def exchange_neumann(U, n):
+    '''Compute and exchange Neumann fluxes *after* room 2 has been solved.
+    Rank 1 computes fluxes from its updated solution and sends them.
+    Rank 0 / 2 receive the fluxes.
+    '''
+    rank = get_rank()
+    middle = n
+
+    if rank == 1:
+        # Fluxes from the *new* solution of room 2
+        n1 = -1 * np.ascontiguousarray(
+            (U[middle + 1:-1, 0] - U[middle + 1:-1, 1]), dtype=np.float64
+        )
+        n2 = -1 * np.ascontiguousarray(
+            (U[1:middle - 1, -1] - U[1:middle - 1, -2]), dtype=np.float64
+        )
+        send_npdata(n1, dest=0)
+        send_npdata(n2, dest=2)
+        return U
+    elif rank == 0:
+        n1 = np.zeros(n - 2, dtype=np.float64)
+        recv_npdata(n1, source=1)
+        return n1
+    elif rank == 2:
+        n2 = np.zeros(n - 2, dtype=np.float64)
+        recv_npdata(n2, source=1)
+        return n2
+    return U
 
 def get_interface_room4(U,dx):
     '''Boundary data between rooms 2 and 4 set up with MPI communication.

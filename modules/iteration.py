@@ -7,7 +7,8 @@
 #        ↓
 #repeat
 from .room_solver import room_solver as solve
-from .matrix import build_matrix_neumann_right, build_rhs_neumann_right, build_matrix_neumann_left, build_rhs_neumann_left, build_internal_matrix, build_rhs_dirichlet
+from .matrix import build_rhs, build_A
+from .constants import *
 
 # Save the A matrices between iterations
 A1_cache = None
@@ -36,20 +37,21 @@ def solve_room(room, rhs, A):
     return room
 
 
-def solve_room3(room3, flux, nx, ny, dx):
+def solve_room3(room3, flux):
     global A3_cache
     
-    A = A3_cache if A3_cache != None else build_matrix_neumann_left(room3)
+    
+    A = A3_cache if A3_cache != None else build_A(N-1,N-2,["left"])
     if A3_cache == None:
         A3_cache = A
     
-    b = build_rhs_neumann_left(room3, flux)
+    b = build_rhs(room3, N-1,N-2, ["left"], flux)
 
     solution = solve(A.tocsc(), b)
-    room3[1:-1, 1:] = solution.reshape((ny, nx))
+    room3[1:-1, :-1] = solution.reshape((N-2,N-1))
 
     # Reconstruct the interface boundary
-    room3[1:-1, 0] = room3[1:-1, 1] - dx * flux
+    # room3[1:-1, 0] = room3[1:-1, 1] - DX * flux["left"]
 
     return room3
 
@@ -59,44 +61,42 @@ def solve_room2(room2):
     ny = room2.shape[0] - 2
     nx = room2.shape[1] - 2
 
-    A = A2_cache if A2_cache != None else build_internal_matrix(room2,ny,nx)
+    A = A2_cache if A2_cache != None else build_A(nx,ny)
     if A2_cache == None:
         A2_cache = A
 
-    b = build_rhs_dirichlet(
-        room2,
-    )
+    b = build_rhs(room2,nx,ny)
 
     return solve_room(room2, b, A)
 
-def solve_room1(room1, flux, nx, ny, dx):
+def solve_room1(room1, flux):
     global A1_cache
-
-    A = A1_cache if A1_cache != None else build_matrix_neumann_right(room1)
+    
+    A = A1_cache if A1_cache != None else build_A(N-1,N-2,["right"])
     if A1_cache == None:
         A1_cache = A
     
-    b = build_rhs_neumann_right(room1, flux)
+    b = build_rhs(room1, N-1,N-2,["right"], flux)
 
     solution = solve(A.tocsc(), b)
-    room1[1:-1, :-1] = solution.reshape((ny, nx))
+    room1[1:-1, 1:] = solution.reshape((N-2, N-1))
 
-    # Reconstruct the interface boundary
-    room1[1:-1, -1] = room1[1:-1, -2] + dx * flux
+    # # Reconstruct the interface boundary
+    # room1[1:-1, -1] = room1[1:-1, -2] + DX * flux["right"]
 
     return room1
 
-def solve_room4(room4, flux, nx, ny, dx):
+def solve_room4(room4, flux):
     global A4_cache
 
-    A = A4_cache if A4_cache != None else build_matrix_neumann_left(room4)
+    A = A4_cache if A4_cache != None else build_A(int(N/2-1),int(N/2-2),["left"])
     if A4_cache == None:
         A4_cache = A
     
-    b = build_rhs_neumann_left(room4, flux)
+    b = build_rhs(room4, int(N/2-1),int(N/2-2),["left"], flux)
 
     solution = solve(A.tocsc(),b)
-    room4[1:-1,1:] = solution.reshape((ny,nx))
-    room4[1:-1,0] = room4[1:-1,1]-dx*flux
+    room4[1:-1,1:] = solution.reshape((int(N/2-2),int(N/2-1)))
+    # room4[1:-1,0] = room4[1:-1,1]-DX*flux["left"]
 
     return room4
