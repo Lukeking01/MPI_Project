@@ -89,14 +89,16 @@ def solve_room1(room1, flux):
 def solve_room4(room4, flux):
     global A4_cache
 
-    A = A4_cache if A4_cache != None else build_A(int(N/2-1),int(N/2-2),["left"])
+    nx, ny = int(N/2-1), int(N/2-2)
+
+    A = A4_cache if A4_cache != None else build_A(nx, ny,["left"])
     if A4_cache == None:
         A4_cache = A
     
-    b = build_rhs(room4, int(N/2-1),int(N/2-2),["left"], flux)
+    b = build_rhs(room4, nx, ny, ["left"], flux)
 
     solution = solve(A.tocsc(),b)
-    room4[1:-1,1:] = solution.reshape((int(N/2-2),int(N/2-1)))
+    room4[1:-1,:-1] = solution.reshape((ny, nx))
     # room4[1:-1,0] = room4[1:-1,1]-DX*flux["left"]
 
     return room4
