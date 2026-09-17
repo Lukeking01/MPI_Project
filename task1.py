@@ -19,7 +19,7 @@ if rank == 0:
 if rank == 1:
     matrix = build_matrix_neumann_left(room)
 if rank == 2:
-    matrix = build_internal_matrix(room)
+    matrix = build_internal_matrix(room,int(1.0/dx) + 2,int(1.0/dx) + 1)
 
 flux = get_interfaces(room, dx)
 if rank == 0:
@@ -30,13 +30,13 @@ if rank == 2:
     matrixb3 = build_rhs_neumann_left(room,flux)
 
 if rank == 0:
-    print("room 1", matrixb1)
+    print("room 1", matrix)
     print()
 if rank == 1:
-    print("room 2", matrixb2)
+    print("room 2", matrix)
     print()
 if rank == 2:
-    print("room 3", matrixb3)
+    print("room 3", matrix)
     print()
 
 if rank == 0:
