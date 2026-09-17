@@ -66,7 +66,7 @@ def main():
             data = [[solution[i],data2[i],data3[i]] for i in range(solution.shape[0])]
             floorplan_builder=floorplan_main
         else:
-            room4=create_room4(DX)
+            room4=create_room4(N)
             data4=np.empty((sol_frame_count, *room4.shape), dtype=float)
             recv_npdata(data4, 3)
             data=[[solution[i], data2[i], data3[i], data4[i]] for i in range(solution.shape[0])]

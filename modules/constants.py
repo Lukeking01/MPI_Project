@@ -1,7 +1,7 @@
 ### Room Scenario Params ###
 
 # Amount of subdivisions to divide a square room into.
-N = 8
+N = 20
 DX = 1 / N
 # Smoothing param, lower to reduce large changes in temperature state between iterations.
 OMEGA = 0.8

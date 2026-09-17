@@ -47,11 +47,8 @@ def dn_iteration(room, n, rank, include_room4=False):
     flux = {}
 
     if rank == 1:
-        # 1. Receive Dirichlet data from rooms 1 & 3
-        room = exchange_dirichlet(room, n)
-
-        if include_room4:
-            get_interface_room4(room, n)
+        # 1. Receive Dirichlet data from rooms 1 & 3 & 4*
+        room = exchange_dirichlet(room, n, with_room4=include_room4)
 
         # 2. Solve room 2
         room = solve_room2(room)
@@ -73,8 +70,10 @@ def dn_iteration(room, n, rank, include_room4=False):
         return solve_room3(room, flux)
 
     if rank == 3:
-        flux4 = 1 * get_interface_room4(room, n)
-        return solve_room4(room, flux4)
+        exchange_dirichlet(room, n, with_room4=include_room4)
+        return room
+        # flux4 = 1 * get_interface_room4(room, n)
+        # return solve_room4(room, flux4)
 
 def dirichlet_neumann(room, n, rank, iterations=10, omega=0.8, include_room4=False):
     """

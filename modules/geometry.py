@@ -82,8 +82,8 @@ def create_room4(n):
     U4 : ndarray
         (ny, nx) array with the initial temperatures at the boundary'''
 
-    size = int(n/2)
-    U4 = np.zeros((size,size)) + FLOOR_TEMP
+    half = int(n / 2)
+    U4 = np.zeros((half,half)) + FLOOR_TEMP
 
     U4[:, -1]=WALL_TEMP
     U4[0,:]=WALL_TEMP
@@ -158,13 +158,13 @@ def exchange_neumann(U, n):
         send_npdata(n2, dest=2)
         return U
     elif rank == 0:
-        flux = np.zeros(n - 2, dtype=np.float64)
+        n1 = np.zeros(n - 2, dtype=np.float64)
         recv_npdata(n1, source=1)
-        return flux
+        return n1
     elif rank == 2:
-        flux = np.zeros(n - 2, dtype=np.float64)
+        n2 = np.zeros(n - 2, dtype=np.float64)
         recv_npdata(n2, source=1)
-        return flux
+        return n2
     return U
 
 def get_interface_room4(U,dx):
@@ -194,7 +194,7 @@ def get_interface_room4(U,dx):
     if rank == 3:
         ts = np.ascontiguousarray(U[:,0], dtype=np.float64)
         send_npdata(ts, dest=1)
-    elif rank ==1:
+    elif rank == 1:
         d4_recv = np.zeros(room4_end-room4_start, dtype=np.float64)
         recv_npdata(d4_recv, source=3)
         U[room4_start:room4_end, -1] = d4_recv
