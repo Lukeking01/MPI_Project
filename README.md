@@ -264,7 +264,7 @@ or create one if none existed.
 
 ## Potential Flaws and Notes for Improvement
 
-- Display quantitative analysis of temperature distribution on each room and some metric
-to display comparing all rooms as a whole.
-- Convert from building room dimensions from dx, to building dx from room dimensions
-- Add animation file save support to a constant
+- Convert from building room dimensions from dx, to building dx from room dimensions (DONE!)
+- Display quantitative analysis of temperature distribution on each room and some metric to display comparing all rooms as a whole.
+- Add animation file save support to a constant.
+- Add console params to override constants for room size, omega value, and if the extension should be included
