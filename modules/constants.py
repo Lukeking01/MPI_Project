@@ -1,7 +1,7 @@
 ### Room Scenario Params ###
 
 # Amount of subdivisions to divide a square room into.
-N = 100
+N = 73
 DX = 1 / N
 # Smoothing param, lower to reduce large changes in temperature state between iterations.
 OMEGA = 0.6
@@ -28,8 +28,8 @@ CROP = False
 # `plot_temperature()`
 PLOT_PARAMS = { # Default params
     "cmap": "inferno",  # Chosen color map scheme
-    "norm_min": 0,      # Normalizes 0 to be the coldest value
-    "norm_max": 40,     # Normalizes 40 to be the hottest value
+    "norm_min": WINDOW_TEMP,      # Normalizes 0 to be the coldest value
+    "norm_max": HEATER_TEMP,     # Normalizes 40 to be the hottest value
 }
 
 # Visual change to heat spreading through water
