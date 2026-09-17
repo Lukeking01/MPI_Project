@@ -158,7 +158,7 @@ displayed in the final plot.
 
 #### room 4
 
-   > Due to the lack of internal points in room 2 in the case dx=1/3, the matrix A is empty and we chose not to display it.
+   > Due to the lack of internal points in room 4 in the case dx=1/3, the matrix A is empty and we chose not to display it.
 
 ### b vector:
 
