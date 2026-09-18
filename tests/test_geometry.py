@@ -10,14 +10,14 @@ import numpy as np
 from modules.geometry import create_room1, create_room2, create_room3, create_room4
 
 def test_room_shapes_dx_0_05():
-    dx = 1/20
-    assert create_room1(dx).shape == (21, 21)
-    assert create_room2(dx).shape == (41, 21)
-    assert create_room3(dx).shape == (21, 21)
-    assert create_room4(dx).shape == (11, 11)
+    n = 20
+    assert create_room1(n).shape == (20, 20)
+    assert create_room2(n).shape == (40, 20)
+    assert create_room3(n).shape == (20, 20)
+    assert create_room4(n).shape == (10, 10)
 
 def test_room1_boundary_values():
-    U = create_room1(0.1)
+    U = create_room1(10)
     assert np.all(U[0, 1:-1] == 15)
     assert np.all(U[-1, 1:-1] == 15)
     assert np.all(U[1:-1, 0] == 40)
