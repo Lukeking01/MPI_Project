@@ -1,10 +1,10 @@
 ### Room Scenario Params ###
 
 # Amount of subdivisions to divide a square room into.
-N = 40
+N = 60
 DX = 1 / (N-1)
 # Smoothing param, lower to reduce large changes in temperature state between iterations.
-OMEGA = 0.6
+OMEGA = 0.8
 # Maximum of iterations to run.
 N_ITERATIONS = 50
 # Set threshold, once the matrix norm of the difference from the new, smoothed room state 

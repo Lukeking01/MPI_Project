@@ -80,23 +80,6 @@ def main():
         if not ANIMATE:
             data = data[1:]
 
-        def log_profile(rooms, compute_time, total_iterations):
-            """
-            Logs data about the simulation params, timings, and potentially some numerical data 
-            about the results.
-            TODO
-
-            :param rooms: An array of the final room states, [room0, room1, ...]
-            :param compute_time: The total time in seconds for computing the simulation, not
-            including plotting.
-            :param total_iterations: The total number of iterations needed to achieve a stable
-            temperature distribution.
-            """
-
-            print(flush=True)
-            print("\t--- PROFILING ---", flush=True)
-            print(f"The total number of iterations needed: {total_iterations}", flush=True)
-
         total_time = time.time() - start_time
         log_profile(data[-1], total_time, total_iterations)
 

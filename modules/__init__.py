@@ -8,4 +8,5 @@ from .geometry import (
 from .MPI import send_npdata, recv_npdata, get_rank
 from .plot import plot_temperature
 from .dn_MPI import dirichlet_neumann
+from .profile import log_profile
 from .constants import *
