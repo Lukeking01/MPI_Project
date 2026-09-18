@@ -4,6 +4,10 @@ from mpi4py import MPI
 # Clone the communicator to avoid interfering with other libraries.
 comm = MPI.Comm.Clone( MPI.COMM_WORLD )
 
+# Expose MPI dtypes used in this project
+MPI_BOOL = MPI.BOOL
+MPI_DOUBLE = MPI.DOUBLE
+
 def get_rank():
     """
     Returns the rank of the current executing thread. This should be
@@ -13,7 +17,7 @@ def get_rank():
     """
     return comm.Get_rank()
 
-def send_npdata(data, dest: int, tag: int = 0, dtype=MPI.DOUBLE):
+def send_npdata(data, dest: int, tag: int = 0, dtype=MPI_DOUBLE):
     """
     Wrapper function which handles sending an np array.
     
@@ -24,7 +28,7 @@ def send_npdata(data, dest: int, tag: int = 0, dtype=MPI.DOUBLE):
     """
     comm.Send([data, dtype], dest=dest, tag=tag)
 
-def recv_npdata(data, source: int, tag: int = None, dtype=MPI.DOUBLE):
+def recv_npdata(data, source: int, tag: int = None, dtype=MPI_DOUBLE):
     """
     Wrapper function which handles receiving an np array.
 

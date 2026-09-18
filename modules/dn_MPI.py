@@ -7,9 +7,8 @@ outer iteration loop with relaxation.  Rank 1 (room 2) is treated with Dirichlet
 treated with Neumann interface conditions.
 """
 
-from mpi4py import MPI
 import numpy as np
-from .MPI import send_npdata, recv_npdata
+from .MPI import send_npdata, recv_npdata, MPI_BOOL
 from .geometry import exchange_dirichlet, exchange_neumann
 from .room_solver import solve_room1, solve_room2, solve_room3, solve_room4
 from .constants import *
@@ -51,10 +50,10 @@ def check_exit_condition(rank, new_room, old_room, include_room4):
         floorplan_stable = max(norm0, norm1, norm2, norm3) < F_NORM_LIMIT
         result = np.array([floorplan_stable], dtype=bool)
         
-        send_npdata(result, 1, dtype=MPI.BOOL)
-        send_npdata(result, 2, dtype=MPI.BOOL)
+        send_npdata(result, 1, dtype=MPI_BOOL)
+        send_npdata(result, 2, dtype=MPI_BOOL)
         if include_room4:
-            send_npdata(result, 3, dtype=MPI.BOOL)
+            send_npdata(result, 3, dtype=MPI_BOOL)
 
         return floorplan_stable
     elif rank == 1 or rank == 2 or rank == 3:
@@ -63,7 +62,7 @@ def check_exit_condition(rank, new_room, old_room, include_room4):
 
         # Receive result from rank 0 and return
         result = np.array([False], dtype=bool)
-        recv_npdata(result, 0, dtype=MPI.BOOL)
+        recv_npdata(result, 0, dtype=MPI_BOOL)
         return result[0]
 
 def dn_iteration(room, n, rank, include_room4=False):
