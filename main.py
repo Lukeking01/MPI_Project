@@ -26,7 +26,7 @@ def main():
         room = create_room4(N)
 
     # Run simulation with all params
-    solution = dirichlet_neumann(
+    solution, total_iterations = dirichlet_neumann(
         room,
         n = N,
         rank = rank,
@@ -80,19 +80,25 @@ def main():
         if not ANIMATE:
             data = data[1:]
 
-        def log_profile(compute_time):
+        def log_profile(rooms, compute_time, total_iterations):
             """
             Logs data about the simulation params, timings, and potentially some numerical data 
             about the results.
             TODO
 
+            :param rooms: An array of the final room states, [room0, room1, ...]
             :param compute_time: The total time in seconds for computing the simulation, not
             including plotting.
+            :param total_iterations: The total number of iterations needed to achieve a stable
+            temperature distribution.
             """
-            pass
+
+            print(flush=True)
+            print("\t--- PROFILING ---", flush=True)
+            print(f"The total number of iterations needed: {total_iterations}", flush=True)
 
         total_time = time.time() - start_time
-        log_profile(total_time)
+        log_profile(data[-1], total_time, total_iterations)
 
         # Plot the temperature distribution
         plot_temperature(

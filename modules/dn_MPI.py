@@ -8,9 +8,62 @@ treated with Neumann interface conditions.
 """
 
 import numpy as np
+from .MPI import send_npdata, recv_npdata, MPI_BOOL
 from .geometry import exchange_dirichlet, exchange_neumann
 from .room_solver import solve_room1, solve_room2, solve_room3, solve_room4
 from .constants import *
+
+def check_exit_condition(rank, new_room, old_room, include_room4):
+    """
+    The new_room state and old_room state for the current rank to compare. Each thread
+    should compute the Matrix Norm, in this case we're choosing the Frobenius norm.
+    Then all of those norms will be sent to Rank 0, which will check if each room is
+    below a set threshold.
+
+    * ranks send norm --> rank 0
+    rank 0 send True/False --> * ranks
+
+    Parameters
+    rank : int
+        The rank of the current running thread.
+    new_room : ndarray
+        New room state computed after applying smoothing parameter.
+    old_room : ndarray
+        Old room state to compare.
+    include_room4 : bool
+        Set to true if room four is included.
+
+    Returns True if it is time to stop iterating.
+    """
+    
+    if rank == 0:
+        norm0 = np.linalg.norm(new_room - old_room)
+        norm1 = np.zeros(1)
+        norm2 = np.zeros(1)
+        norm3 = np.zeros(1)
+        
+        recv_npdata(norm1, 1)
+        recv_npdata(norm2, 2)
+        if include_room4:
+            recv_npdata(norm3, 3)
+
+        floorplan_stable = max(norm0, norm1, norm2, norm3) < F_NORM_LIMIT
+        result = np.array([floorplan_stable], dtype=bool)
+        
+        send_npdata(result, 1, dtype=MPI_BOOL)
+        send_npdata(result, 2, dtype=MPI_BOOL)
+        if include_room4:
+            send_npdata(result, 3, dtype=MPI_BOOL)
+
+        return floorplan_stable
+    elif rank == 1 or rank == 2 or rank == 3:
+        f_norm = np.linalg.norm(new_room - old_room)
+        send_npdata(f_norm, 0)
+
+        # Receive result from rank 0 and return
+        result = np.array([False], dtype=bool)
+        recv_npdata(result, 0, dtype=MPI_BOOL)
+        return result[0]
 
 def dn_iteration(room, n, rank, include_room4=False):
     """
@@ -98,12 +151,16 @@ def dirichlet_neumann(room, n, rank, iterations=10, omega=0.8, include_room4=Fal
     include_room4 : bool, optional
         Whether to include the optional fourth room.  Default is False.
 
-    Returns
+    Returns (tuple)
     -------
     ndarray
         Array of shape ``(iterations + 1, *room.shape)`` containing the
         temperature field after every iteration (index 0 is the initial
         state).
+
+    int
+        Number of iterations used, could be less than the requested number if the room state
+        stabilizes quickly.
     """
     
     states = []
@@ -134,7 +191,13 @@ def dirichlet_neumann(room, n, rank, iterations=10, omega=0.8, include_room4=Fal
         # Only print once to console
         if rank == 0:
             print(f"Iteration {k+1 } finished", flush=True)
-    return np.array(states)
+
+        floorplan_stable = check_exit_condition(rank, room, old_room, include_room4)
+
+        if floorplan_stable:
+            return np.array(states), k+1
+        
+    return np.array(states), iterations
 
 def relax(u_new, u_old, omega):
     """
