@@ -13,7 +13,7 @@ def get_rank():
     """
     return comm.Get_rank()
 
-def send_npdata(data, dest: int, tag: int = 0):
+def send_npdata(data, dest: int, tag: int = 0, dtype=MPI.DOUBLE):
     """
     Wrapper function which handles sending an np array.
     
@@ -22,9 +22,9 @@ def send_npdata(data, dest: int, tag: int = 0):
     :param tag: Integer tag sent with the data.
     :returns None:
     """
-    comm.Send([data, MPI.DOUBLE], dest=dest, tag=tag)
+    comm.Send([data, dtype], dest=dest, tag=tag)
 
-def recv_npdata(data, source: int, tag: int = None):
+def recv_npdata(data, source: int, tag: int = None, dtype=MPI.DOUBLE):
     """
     Wrapper function which handles receiving an np array.
 
@@ -37,4 +37,4 @@ def recv_npdata(data, source: int, tag: int = None):
     if tag is not None:
         recv_kwargs["tag"] = tag
     
-    comm.Recv([data, MPI.DOUBLE], **recv_kwargs)
+    comm.Recv([data, dtype], **recv_kwargs)

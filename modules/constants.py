@@ -5,8 +5,12 @@ N = 40
 DX = 1 / (N-1)
 # Smoothing param, lower to reduce large changes in temperature state between iterations.
 OMEGA = 0.6
-# Number of iterations to run.
-N_ITERATIONS = 10
+# Maximum of iterations to run.
+N_ITERATIONS = 50
+# Set threshold, once the matrix norm of the difference from the new, smoothed room state 
+# and the old room state is below this value, we treat the room state as "stable" and can
+# break out of the loop of iterations.
+F_NORM_LIMIT = 1.0
 # Set to True to include the extension room, otherwise just computes the three-room floorplan.
 INCLUDE_ROOM4 = True
 
